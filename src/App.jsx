@@ -1,46 +1,68 @@
-import React, {useState} from "react";
-import {Box, Typography, Paper, BottomNavigation, BottomNavigationAction} from "@mui/material";
-import HomeIcon from "@mui/icons-material/Home";
-import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
-import PersonIcon from '@mui/icons-material/Person';
-import {BrowserRouter as Router, Route, Routes, Link} from "react-router-dom";
-import QnAPage from './page/QnAPage';
+// src/App.jsx
+import React, {useEffect, useState} from 'react';
+import {Provider, useDispatch} from 'react-redux';
+import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+import store from './store';
+import axios from './api/axios'; // Axios 기본 설정 파일
+import {setAccessToken, setUserId, setUserNickname} from './slices/authSlice'; // 액세스 토큰 설정 액션
+import AlertNotification from './components/AlertNotification.jsx';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Navbar from "./components/Navbar.jsx";
+import MyInfo from "./pages/MyInfo.jsx";
+import FreeBoard from "./pages/FreeBoard.jsx";
 
-// 네비게이션 바 컴포넌트
-function BottomNav({value, setValue}) {
+const AppContent = () => {
+  const dispatch = useDispatch();
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    const fetchAccessToken = async () => {
+      try {
+        const response = await axios.get('/auth/reissue-token');
+        if (response.data && response.data.access_token) {
+          dispatch(setAccessToken(response.data.access_token)); // Redux에 저장
+          const userInfo = await axios.get("/users/me");
+          const user = userInfo.data; // 받아온 사용자 정보
+          // 사용자 정보를 Redux에 저장
+          dispatch(setUserId(user.id));
+          dispatch(setUserNickname(user.nickname));
+        }
+      } catch (error) {
+        console.info('Browser refresh and failed to reissue access token:', error.response.data.message);
+      } finally {
+        setIsInitialized(true); // 초기화 완료
+      }
+    };
+
+    fetchAccessToken();
+  }, [dispatch]);
+
+  // 최상위 컴포넌트의 useEffect()가 실행을 마칠 때까지 대기
+  if (!isInitialized) {
+    return <div>Initializing...</div>; // 초기화 중 로딩 표시
+  }
+
   return (
-    <Paper sx={{position: "fixed", bottom: 0, left: 0, right: 0}} elevation={3}>
-      <BottomNavigation
-        showLabels
-        value={value}
-        onChange={(event, newValue) => {
-          setValue(newValue);
-        }}
-      >
-        <BottomNavigationAction label="Home" icon={<HomeIcon/>} component={Link} to="/"/>
-        <BottomNavigationAction label="QnA" icon={<QuestionAnswerIcon/>} component={Link} to="/qna"/>
-        <BottomNavigationAction label="Profile" icon={<PersonIcon/>} component={Link} to="/profile"/>
-      </BottomNavigation>
-    </Paper>
-  );
-}
-
-export default function App() {
-  const [value, setValue] = useState(0);
-
-  return (
-    <Router>
-      <Box sx={{pb: 7}}>
-        {/* 여기에 내용 추가 */}
+    <>
+      <Router>
+        <Navbar/>
         <Routes>
-          <Route path="/" element={<div>Home Page</div>}/>
-          <Route path="/qna" element={<QnAPage/>}/>
-          <Route path="/profile" element={<div>Profile Page</div>}/>
+          <Route path="/" element={<Home/>}/>
+          <Route path="/login" element={<Login/>}/>
+          <Route path="/myinfo" element={<MyInfo/>}/>
+          <Route path="/freeboard" element={<FreeBoard/>}/>
         </Routes>
-      </Box>
-
-      {/* BottomNavigation이 항상 보이도록 */}
-      <BottomNav value={value} setValue={setValue}/>
-    </Router>
+      </Router>
+    </>
   );
-}
+};
+
+const App = () => (
+  <Provider store={store}>
+    <AlertNotification/>
+    <AppContent/>
+  </Provider>
+);
+
+export default App;

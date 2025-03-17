@@ -1,7 +1,7 @@
 import {StrictMode} from 'react'
 import {createRoot} from 'react-dom/client'
 import App from './App.jsx'
-import {createTheme, ThemeProvider} from "@mui/material";
+import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
 
 // MUI 테마 생성
 const theme = createTheme({
@@ -33,6 +33,8 @@ const theme = createTheme({
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
+      {/* body의 margin 값을 제거하기 위해 설정*/}
+      <CssBaseline/>
       <App/>
     </ThemeProvider>
   </StrictMode>,
