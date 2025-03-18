@@ -1,35 +1,68 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// src/App.jsx
+import React, {useEffect, useState} from 'react';
+import {Provider, useDispatch} from 'react-redux';
+import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+import store from './store';
+import axios from './api/axios'; // Axios 기본 설정 파일
+import {setAccessToken, setUserId, setUserNickname} from './slices/authSlice'; // 액세스 토큰 설정 액션
+import AlertNotification from './components/AlertNotification.jsx';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Navbar from "./components/Navbar.jsx";
+import MyInfo from "./pages/MyInfo.jsx";
+import QnA from "./pages/QnA.jsx";
 
-function App() {
-  const [count, setCount] = useState(0)
+const AppContent = () => {
+  const dispatch = useDispatch();
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    const fetchAccessToken = async () => {
+      try {
+        const response = await axios.get('/auth/reissue-token');
+        if (response.data && response.data.access_token) {
+          dispatch(setAccessToken(response.data.access_token)); // Redux에 저장
+          const userInfo = await axios.get("/users/me");
+          const user = userInfo.data; // 받아온 사용자 정보
+          // 사용자 정보를 Redux에 저장
+          dispatch(setUserId(user.id));
+          dispatch(setUserNickname(user.nickname));
+        }
+      } catch (error) {
+        console.info('Browser refresh and failed to reissue access token:', error.response.data.message);
+      } finally {
+        setIsInitialized(true); // 초기화 완료
+      }
+    };
+
+    fetchAccessToken();
+  }, [dispatch]);
+
+  // 최상위 컴포넌트의 useEffect()가 실행을 마칠 때까지 대기
+  if (!isInitialized) {
+    return <div>Initializing...</div>; // 초기화 중 로딩 표시
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Router>
+        <Navbar/>
+        <Routes>
+          <Route path="/" element={<Home/>}/>
+          <Route path="/login" element={<Login/>}/>
+          <Route path="/myinfo" element={<MyInfo/>}/>
+          <Route path="/qna" element={<QnA/>}/>
+        </Routes>
+      </Router>
     </>
-  )
-}
+  );
+};
 
-export default App
+const App = () => (
+  <Provider store={store}>
+    <AlertNotification/>
+    <AppContent/>
+  </Provider>
+);
+
+export default App;
