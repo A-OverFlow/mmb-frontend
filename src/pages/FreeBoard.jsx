@@ -18,10 +18,18 @@ const FreeBoard = () => {
       if (isFetching.current) return;
       isFetching.current = true;
 
-      const response = await axios.get("/freeboard/posts/infinite", {
+      // const response = await axios.get("/freeboard/posts/infinite", {
+      //   params: {
+      //     page: reset ? 0 : page,
+      //     size: 10,
+      //   },
+      // });
+
+      // JSONPlaceholder API로 변경
+      const response = await axios.get("https://jsonplaceholder.typicode.com/posts", {
         params: {
-          page: reset ? 0 : page,
-          size: 10,
+          _page: reset ? 1 : page,  // JSONPlaceholder는 페이지가 1부터 시작
+          _limit: 10,               // 한 페이지당 10개 데이터
         },
       });
 
