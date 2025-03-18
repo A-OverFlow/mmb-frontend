@@ -1,16 +1,17 @@
-// FreeBoard.jsx
+// QnA.jsx
 import React, {useState, useRef, useEffect} from "react";
 import {useSelector} from "react-redux";
 import axios from "../api/axios";
 import PostInput from "../components/PostInput";
 import Board from "../components/Board";
 
-const FreeBoard = () => {
+const QnA = () => {
   const [posts, setPosts] = useState([]);
   const [editingPost, setEditingPost] = useState(null); // 수정 중인 게시글
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0);
-  const accessToken = useSelector((state) => state.auth.accessToken);
+  // const accessToken = useSelector((state) => state.auth.accessToken);
+  const accessToken = true; // 아직 백엔드가 없으니까 일단 true로 설정
   const isFetching = useRef(false);
 
   const fetchPosts = async (reset = false) => {
@@ -18,14 +19,8 @@ const FreeBoard = () => {
       if (isFetching.current) return;
       isFetching.current = true;
 
-      // const response = await axios.get("/freeboard/posts/infinite", {
-      //   params: {
-      //     page: reset ? 0 : page,
-      //     size: 10,
-      //   },
-      // });
-
-      // JSONPlaceholder API로 변경
+      // JSONPlaceholder API
+      // todo 백엔드 API 교체
       const response = await axios.get("https://jsonplaceholder.typicode.com/posts", {
         params: {
           _page: reset ? 1 : page,  // JSONPlaceholder는 페이지가 1부터 시작
@@ -34,6 +29,7 @@ const FreeBoard = () => {
       });
 
       const newPosts = response.data;
+      console.log(newPosts);
       setPosts((prevPosts) => (reset ? newPosts : [...prevPosts, ...newPosts]));
       setHasMore(newPosts.length > 0);
       setPage((prevPage) => (reset ? 1 : prevPage + 1));
@@ -49,11 +45,11 @@ const FreeBoard = () => {
     try {
       if (post.id) {
         // 수정 요청
-        await axios.put(`/freeboard/posts/${post.id}`, post);
+        await axios.put(`/qna/posts/${post.id}`, post);
         setEditingPost(null); // 수정 완료 후 초기화
       } else {
         // 새 게시글 작성
-        await axios.post("/freeboard/posts", post);
+        await axios.post("/qna/posts", post);
       }
       fetchPosts(true);
     } catch (error) {
@@ -72,7 +68,7 @@ const FreeBoard = () => {
 
   const handleDeletePost = async (postId) => {
     try {
-      await axios.delete(`/freeboard/posts/${postId}`);
+      await axios.delete(`/qna/posts/${postId}`);
       fetchPosts(true);
     } catch (error) {
       console.error("Error deleting post:", error);
@@ -103,4 +99,4 @@ const FreeBoard = () => {
   );
 };
 
-export default FreeBoard;
+export default QnA;

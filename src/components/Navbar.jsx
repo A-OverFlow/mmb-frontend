@@ -44,77 +44,110 @@ const Navbar = () => {
   };
 
   const handleGoBoard = () => {
-    navigate('/freeboard');
+    navigate('/qna');
   };
 
   const list = () => (
-    <Box sx={{ width: 250 }} role="presentation" onClick={() => toggleDrawer(false)}>
+    <Box sx={{width: 250}} role="presentation" onClick={() => toggleDrawer(false)}>
       <List>
-        {accessToken ? (
-          <>
-            <ListItem disablePadding>
-              <ListItemButton onClick={() => navigate('/myinfo')}>
-                <PersonIcon sx={{ mr: 2 }} />
-                <ListItemText primary="내 정보" />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton onClick={handleLogout}>
-                <ExitToAppIcon sx={{ mr: 2 }} />
-                <ListItemText primary="로그아웃" />
-              </ListItemButton>
-            </ListItem>
-          </>
-        ) : (
+        {/*{accessToken ? (*/}
+        {/*  <>*/}
+        {/*    <ListItem disablePadding>*/}
+        {/*      <ListItemButton onClick={() => navigate('/myinfo')}>*/}
+        {/*        <PersonIcon sx={{mr: 2}}/>*/}
+        {/*        <ListItemText primary="내 정보"/>*/}
+        {/*      </ListItemButton>*/}
+        {/*    </ListItem>*/}
+        {/*    <ListItem disablePadding>*/}
+        {/*      <ListItemButton onClick={handleLogout}>*/}
+        {/*        <ExitToAppIcon sx={{mr: 2}}/>*/}
+        {/*        <ListItemText primary="로그아웃"/>*/}
+        {/*      </ListItemButton>*/}
+        {/*    </ListItem>*/}
+        {/*  </>*/}
+        {/*) : (*/}
+        {/*  <ListItem disablePadding>*/}
+        {/*    <ListItemButton onClick={handleLogin}>*/}
+        {/*      <ListItemText primary="LOGIN"/>*/}
+        {/*    </ListItemButton>*/}
+        {/*  </ListItem>*/}
+        {/*)}*/}
+
+        <>
           <ListItem disablePadding>
-            <ListItemButton onClick={handleLogin}>
-              <ListItemText primary="LOGIN" />
+            <ListItemButton onClick={() => navigate('/myinfo')}>
+              <PersonIcon sx={{mr: 2}}/>
+              <ListItemText primary="내 정보"/>
             </ListItemButton>
           </ListItem>
-        )}
+          <ListItem disablePadding>
+            <ListItemButton onClick={handleLogout}>
+              <ExitToAppIcon sx={{mr: 2}}/>
+              <ListItemText primary="로그아웃"/>
+            </ListItemButton>
+          </ListItem>
+        </>
+        <ListItem disablePadding>
+          <ListItemButton onClick={handleLogin}>
+            <ListItemText primary="LOGIN"/>
+          </ListItemButton>
+        </ListItem>
       </List>
-      <Divider />
+      <Divider/>
     </Box>
   );
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" sx={{ boxShadow: 'none' }}>
+    <Box sx={{flexGrow: 1}}>
+      <AppBar position="static" sx={{boxShadow: 'none'}}>
         <Toolbar>
           <Typography
             variant="h6"
             component="div"
-            sx={{ cursor: 'pointer', marginRight: 2 }}
+            sx={{cursor: 'pointer', marginRight: 2}}
             onClick={handleGoHome}
           >
-            요피랜드
+            무물보
           </Typography>
 
           <Typography
             variant="subtitle1"
             component="div"
-            sx={{ cursor: 'pointer', marginRight: 2 }}
+            sx={{cursor: 'pointer', marginRight: 2}}
             onClick={handleGoBoard}
           >
-            자유게시판
+            QnA
           </Typography>
 
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}></Typography>
+          <Typography variant="h6" component="div" sx={{flexGrow: 1}}></Typography>
 
-          {accessToken ? (
-            <AccountCircle
-              style={{ cursor: 'pointer' }}
-              onClick={() => toggleDrawer(true)}
-            />
-          ) : (
-            <Typography
-              variant="body1"
-              sx={{ cursor: 'pointer' }}
-              onClick={handleLogin}
-            >
-              LOGIN
-            </Typography>
-          )}
+          {/*{accessToken ? (*/}
+          {/*  <AccountCircle*/}
+          {/*    style={{ cursor: 'pointer' }}*/}
+          {/*    onClick={() => toggleDrawer(true)}*/}
+          {/*  />*/}
+          {/*) : (*/}
+          {/*  <Typography*/}
+          {/*    variant="body1"*/}
+          {/*    sx={{ cursor: 'pointer' }}*/}
+          {/*    onClick={handleLogin}*/}
+          {/*  >*/}
+          {/*    Login*/}
+          {/*  </Typography>*/}
+          {/*)}*/}
+
+          <AccountCircle
+            style={{cursor: 'pointer'}}
+            onClick={() => toggleDrawer(true)}
+          />
+          <Typography
+            variant="body1"
+            sx={{cursor: 'pointer'}}
+            onClick={handleLogin}
+          >
+            Login
+          </Typography>
+
         </Toolbar>
       </AppBar>
 

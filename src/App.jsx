@@ -10,7 +10,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Navbar from "./components/Navbar.jsx";
 import MyInfo from "./pages/MyInfo.jsx";
-import FreeBoard from "./pages/FreeBoard.jsx";
+import QnA from "./pages/QnA.jsx";
 
 const AppContent = () => {
   const dispatch = useDispatch();
@@ -51,7 +51,7 @@ const AppContent = () => {
           <Route path="/" element={<Home/>}/>
           <Route path="/login" element={<Login/>}/>
           <Route path="/myinfo" element={<MyInfo/>}/>
-          <Route path="/freeboard" element={<FreeBoard/>}/>
+          <Route path="/qna" element={<QnA/>}/>
         </Routes>
       </Router>
     </>

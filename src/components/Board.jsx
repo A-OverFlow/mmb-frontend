@@ -109,7 +109,7 @@ const Board = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) => 
                     marginBottom: "10px",
                   }}
                 >
-                  {post.content}
+                  {post.body}
                 </Typography>
               </Box>
 
@@ -146,7 +146,8 @@ const Board = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) => 
               </Box>
 
               {/* 사용자가 작성한 게시글에만 점 3개 아이콘을 표시 */}
-              {userId && post.userId === userId && (
+              {/*{userId && post.userId === userId && ( 일단 조건 없이 출력*/}
+              {
                 <IconButton
                   sx={{
                     position: "absolute",
@@ -157,7 +158,7 @@ const Board = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) => 
                 >
                   <MoreVertIcon />
                 </IconButton>
-              )}
+              }
 
               {/* 메뉴 */}
               <Menu

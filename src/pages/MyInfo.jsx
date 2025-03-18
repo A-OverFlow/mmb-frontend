@@ -87,12 +87,12 @@ const MyInfo = () => {
             variant="contained"
             color="primary"
             onClick={handleNicknameChange}
-            disabled={
-              newNickname.length < 2 || // 닉네임 길이가 2 미만
-              newNickname.length > 10 || // 닉네임 길이가 10 초과
-              /\s/.test(newNickname) || // 닉네임에 공백 포함
-              newNickname === nickname // 현재 닉네임과 수정하려는 닉네임이 동일
-            } // 버튼 비활성화 조건 추가
+            // disabled={
+            //   newNickname.length < 2 || // 닉네임 길이가 2 미만
+            //   newNickname.length > 10 || // 닉네임 길이가 10 초과
+            //   /\s/.test(newNickname) || // 닉네임에 공백 포함
+            //   newNickname === nickname // 현재 닉네임과 수정하려는 닉네임이 동일
+            // } // 버튼 비활성화 조건 추가
           >
             저장
           </Button>
