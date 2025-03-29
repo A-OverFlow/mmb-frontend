@@ -12,7 +12,7 @@ RUN npm run build
 FROM nginx:alpine
 COPY --from=build /app/build /usr/share/nginx/html
 
-# 커스텀 Nginx 설정 복사
-COPY ./nginx.conf /etc/nginx/nginx.conf
+# EC2의 Nginx 설정 경로와 동일하게 설정
+COPY /home/ec2-user/infra/nginx/nginx.conf /etc/nginx/nginx.conf
 
 CMD ["nginx", "-g", "daemon off;"]
