@@ -8,7 +8,7 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# 2단계: Nginx로 배포
+# 2단계: nginx로 배포
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 
