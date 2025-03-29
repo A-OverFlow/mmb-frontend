@@ -11,6 +11,6 @@ RUN npm run build
 # 2단계: nginx로 배포
 FROM nginx:alpine
 
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/dist /usr/share/nginx/html/
 
 CMD ["nginx", "-g", "daemon off;"]
