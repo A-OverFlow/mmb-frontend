@@ -3,7 +3,7 @@ name: Deploy Frontend via Docker
 on:
   push:
     branches:
-      - main
+      - develop
 
 jobs:
   build-and-deploy:
