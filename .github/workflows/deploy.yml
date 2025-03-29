@@ -3,7 +3,7 @@ name: Deploy Frontend via Docker
 on:
   push:
     branches:
-      - develop
+      - develop #develop에 push하는 경우 CI/CD
 
 jobs:
   build-and-deploy:
