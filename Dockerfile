@@ -1,4 +1,4 @@
-# 1단계: 빌드
+# 1단계:빌드
 FROM node:18-alpine AS build
 WORKDIR /app
 
