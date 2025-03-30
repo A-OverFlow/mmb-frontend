@@ -83,3 +83,4 @@ jobs:
           to: ${{ secrets.RECIPIENT }}
           from: ${{ secrets.SMTP_USER }}
           secure: true
+          ignore_cert: false
