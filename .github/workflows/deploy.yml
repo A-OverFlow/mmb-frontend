@@ -63,3 +63,23 @@ jobs:
             sudo docker rm mmb-frontend || true && \
             sudo docker run -d -p 80:80 -p 443:443 --name mmb-frontend $DOCKER_IMAGE
           "
+
+      # 10. 이메일 알림 (성공 여부에 따라)
+      - name: Send Email Notification
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_HOST }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "MMB Frontend Deployment - ${{ job.status }}"
+          body: |
+            The MMB frontend deployment via GitHub Actions has completed.
+            Status: ${{ job.status }}
+            Branch: ${{ github.ref }}
+            Commit: ${{ github.sha }}
+            Run ID: ${{ github.run_id }}
+          to: ${{ secrets.RECIPIENT }}
+          from: ${{ secrets.SMTP_USER }}
+          secure: true
