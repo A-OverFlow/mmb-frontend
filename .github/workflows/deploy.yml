@@ -82,5 +82,5 @@ jobs:
             Run ID: ${{ github.run_id }}
           to: ${{ secrets.RECIPIENT }}
           from: ${{ secrets.SMTP_USER }}
-          secure: true
+          secure: false
           ignore_cert: false
