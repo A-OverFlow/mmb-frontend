@@ -59,6 +59,8 @@ jobs:
           chmod 400 /tmp/key.pem
           ssh -o StrictHostKeyChecking=no -i /tmp/key.pem $EC2_USER@$EC2_HOST "
             sudo docker pull $DOCKER_IMAGE && \
+            sudo docker stop mmb-frontend || true && \
+            sudo docker rm mmb-frontend || true
           "
 
       # 10. 이메일 알림 (성공 여부에 따라)
