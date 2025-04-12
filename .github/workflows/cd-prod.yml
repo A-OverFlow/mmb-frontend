@@ -29,6 +29,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            docker pull ${{ secrets.DOCKER_USERNAME }}/mmb-frontend:dev
 #            cd /home/ec2-user/infra
 #            docker-compose -f docker-compose.yml pull mmb-frontend
 #            docker-compose -f docker-compose.yml up -d mmb-frontend
