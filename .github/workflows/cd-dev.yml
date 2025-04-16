@@ -29,6 +29,11 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            echo "==== NETWORK TEST ===="
+            ping -c 3 google.com || true
+            nslookup registry-1.docker.io || true
+            curl -s https://registry-1.docker.io/v2/ || true
+            echo "==== DOCKER PULL ===="
             docker pull mumulbo/mmb-frontend:dev
             cd /home/ec2-user/infra
             docker-compose --env-file .env.dev up -d --no-deps --force-recreate mmb-frontend
