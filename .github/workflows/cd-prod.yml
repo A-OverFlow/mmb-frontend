@@ -30,9 +30,8 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             docker pull mumulbo/mmb-frontend:prod
-#            cd /home/ec2-user/infra
-#            docker-compose -f docker-compose.yml pull mmb-frontend
-#            docker-compose -f docker-compose.yml up -d mmb-frontend
+            cd /home/ec2-user/infra
+            docker-compose --env-file .env.prod up -d --no-deps --force-recreate mmb-frontend
 
       # 10. 이메일 알림 (성공 여부에 따라)
       - name: Send Email Notification
