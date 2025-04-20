@@ -23,7 +23,7 @@ jobs:
         run: docker push mumulbo/mmb-frontend:dev
 
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.0.0
+        uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
