@@ -1,33 +1,79 @@
-- name: Deploy to EC2
-  uses: appleboy/ssh-action@v0.1.8
-  with:
-    host: ${{ secrets.EC2_HOST }}
-    username: ${{ secrets.EC2_USER }}
-    key: ${{ secrets.EC2_KEY }}
-    script: |
-      echo "==== NETWORK TEST ===="
-      ping -c 3 google.com || true
-      nslookup registry-1.docker.io || true
-      curl -s https://registry-1.docker.io/v2/ || true
+name: Frontend Dev CD
 
-      echo "==== WAIT FOR Docker Hub Image ===="
-      for i in {1..5}; do
-        curl -s https://hub.docker.com/v2/repositories/mumulbo/mmb-frontend/tags/dev | grep '"name":' && break
-        echo "⏳ Image not found yet on Docker Hub... retrying in 5s"
-        sleep 5
-      done
+on:
+  push:
+    branches:
+      - develop
 
-      echo "==== DOCKER PULL ===="
-      for i in {1..3}; do
-        docker pull mumulbo/mmb-frontend:dev && break || sleep 5
-      done
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-      docker image inspect mumulbo/mmb-frontend:dev > /dev/null 2>&1
-      if [ $? -ne 0 ]; then
-        echo "❌ docker pull failed, aborting deployment"
-        exit 1
-      fi
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
 
-      echo "==== DOCKER COMPOSE UP ===="
-      cd /home/ec2-user/infra
-      docker-compose --env-file .env.dev up -d --no-deps --force-recreate mmb-frontend
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t mumulbo/mmb-frontend:dev .
+
+      - name: Push Docker image
+        run: docker push mumulbo/mmb-frontend:dev
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            echo "==== NETWORK TEST ===="
+            ping -c 3 google.com || true
+            nslookup registry-1.docker.io || true
+            curl -s https://registry-1.docker.io/v2/ || true
+
+            echo "==== WAIT FOR Docker Hub Image ===="
+            for i in {1..5}; do
+              if curl -s https://hub.docker.com/v2/repositories/mumulbo/mmb-frontend/tags/dev | grep -q '"name":'; then
+                echo "✅ Image tag found on Docker Hub"
+                break
+              fi
+              echo "⏳ Image not found yet... retrying in 5s"
+              sleep 5
+            done
+
+            echo "==== DOCKER PULL ===="
+            for i in {1..3}; do
+              docker pull mumulbo/mmb-frontend:dev && break || sleep 5
+            done
+
+            if ! docker image inspect mumulbo/mmb-frontend:dev > /dev/null 2>&1; then
+              echo "❌ docker pull failed, aborting deployment"
+              exit 1
+            fi
+
+            echo "==== DOCKER COMPOSE UP ===="
+            cd /home/ec2-user/infra
+            docker-compose --env-file .env.dev up -d --no-deps --force-recreate mmb-frontend
+
+      - name: Send Email Notification
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_HOST }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "MMB Frontend Deployment - ${{ job.status }}"
+          body: |
+            The MMB frontend deployment via GitHub Actions has completed.
+            Status: ${{ job.status }}
+            Branch: ${{ github.ref }}
+            Commit: ${{ github.sha }}
+            Run ID: ${{ github.run_id }}
+          to: ${{ secrets.RECIPIENT }}
+          from: ${{ secrets.SMTP_USER }}
+          secure: false
+          ignore_cert: false
