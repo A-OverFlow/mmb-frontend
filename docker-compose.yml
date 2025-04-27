@@ -6,7 +6,7 @@ services:
       - "${NGINX_PORT_HTTP}:80"
       - "${NGINX_PORT_HTTPS}:443"
     volumes:
-      - ${CERTS_HOST_PATH}:/certs:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     networks:
       - mumulbo-network
 
