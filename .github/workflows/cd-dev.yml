@@ -34,7 +34,7 @@ jobs:
 
       - name: Inject GitHub Secrets to nginx.conf
         run: |
-          export API_GATEWAY_URL=${{ secrets.VITE_API_GATEWAY_URL }}
+          export API_GATEWAY_URL=${{ vars.VITE_API_GATEWAY_URL }}
           envsubst '${API_GATEWAY_URL}' < nginx.conf > nginx.conf.out
           mv nginx.conf.out nginx.conf
 
