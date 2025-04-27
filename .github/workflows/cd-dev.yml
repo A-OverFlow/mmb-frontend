@@ -1,79 +1,85 @@
-name: Frontend Dev CD
+name: DEV CD - Deploy to EC2
 
+# 워크플로우 트리거 조건 설정
 on:
+  # dev 브랜치에 Push 발생 시 실행
   push:
-    branches:
-      - develop
+    branches: [ develop ]
 
 jobs:
-  deploy:
+  deploy-dev:
+    # 사용할 머신 환경 - 최신 Ubuntu LTS
     runs-on: ubuntu-latest
+    # 사용할 환경(dev)의 Secrets와 Variables를 활성화
+    environment: develop
 
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v3
+      - name: 소스 코드 체크아웃
+        uses: actions/checkout@v4
 
-      - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Docker Buildx 설정 (멀티 플랫폼 빌드를 위해 사용)
+        uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
-        run: docker build -t mumulbo/mmb-frontend:dev --build-arg VITE_ENV=dev .
+      - name: EC2 접속을 위한 SSH 키 설정
+        run: |
+          mkdir -p ~/.ssh                    # .ssh 디렉터리 생성
+          echo "${{ secrets.DEV_EC2_KEY }}" > ~/.ssh/ec2.pem  # 비밀키 파일 생성
+          chmod 600 ~/.ssh/ec2.pem            # 비밀키 파일 권한 설정
 
-      - name: Push Docker image
-        run: docker push mumulbo/mmb-frontend:dev
+      - name: 저장소 이름 및 배포 디렉토리 변수 설정
+        id: vars
+        run: |
+          echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> $GITHUB_OUTPUT  # 저장소 이름 추출
+          echo "DEPLOY_DIR=${{ secrets.DEV_DEPLOY_PATH }}/${GITHUB_REPOSITORY##*/}" >> $GITHUB_OUTPUT  # 배포 경로 설정
 
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.8
+      - name: Inject GitHub Secrets to nginx.conf
+        run: |
+          export API_GATEWAY_URL=${{ secrets.VITE_API_GATEWAY_URL }}
+          envsubst '${API_GATEWAY_URL}' < nginx.conf > nginx.conf.out
+          mv nginx.conf.out nginx.conf
+
+      - name: VITE와 Compose에 필요한 .env 파일 생성
+        run: |
+          echo "VITE_API_GATEWAY_URL=${{ vars.VITE_API_GATEWAY_URL }}" >> .env
+          echo "VITE_GOOGLE_CLIENT_ID=${{ vars.VITE_GOOGLE_CLIENT_ID }}" >> .env
+          echo "DOCKER_IMAGE=${{ vars.DOCKER_IMAGE }}" > .env
+          echo "NGINX_PORT_HTTP=${{ vars.NGINX_PORT_HTTP }}" >> .env
+          echo "NGINX_PORT_HTTPS=${{ vars.NGINX_PORT_HTTPS }}" >> .env
+          echo "CERTS_HOST_PATH=${{ secrets.CERTS_HOST_PATH }}" >> .env
+
+      - name: Docker Hub 로그인
+        uses: docker/login-action@v3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
-          script: |
-            echo "==== NETWORK TEST ===="
-            ping -c 3 google.com || true
-            nslookup registry-1.docker.io || true
-            curl -s https://registry-1.docker.io/v2/ || true
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-            echo "==== WAIT FOR Docker Hub Image ===="
-            for i in {1..5}; do
-              if curl -s https://hub.docker.com/v2/repositories/mumulbo/mmb-frontend/tags/dev | grep -q '"name":'; then
-                echo "✅ Image tag found on Docker Hub"
-                break
-              fi
-              echo "⏳ Image not found yet... retrying in 5s"
-              sleep 5
-            done
-
-            echo "==== DOCKER PULL ===="
-            for i in {1..3}; do
-              docker pull mumulbo/mmb-frontend:dev && break || sleep 5
-            done
-
-            if ! docker image inspect mumulbo/mmb-frontend:dev > /dev/null 2>&1; then
-              echo "❌ docker pull failed, aborting deployment"
-              exit 1
-            fi
-
-            echo "==== DOCKER COMPOSE UP ===="
-            cd /home/ec2-user/infra
-            docker-compose --env-file .env.dev up -d --no-deps --force-recreate mmb-frontend
-
-      - name: Send Email Notification
-        if: always()
-        uses: dawidd6/action-send-mail@v3
+      - name: Docker 이미지 빌드 후 Docker Hub에 푸시
+        uses: docker/build-push-action@v5
         with:
-          server_address: ${{ secrets.SMTP_HOST }}
-          server_port: ${{ secrets.SMTP_PORT }}
-          username: ${{ secrets.SMTP_USER }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          subject: "MMB Frontend Deployment - ${{ job.status }}"
-          body: |
-            The MMB frontend deployment via GitHub Actions has completed.
-            Status: ${{ job.status }}
-            Branch: ${{ github.ref }}
-            Commit: ${{ github.sha }}
-            Run ID: ${{ github.run_id }}
-          to: ${{ secrets.RECIPIENT }}
-          from: ${{ secrets.SMTP_USER }}
-          secure: false
-          ignore_cert: false
+          context: .               # 빌드 컨텍스트 (현재 디렉토리)
+          file: Dockerfile          # 사용할 Dockerfile
+          push: true                # 빌드 후 이미지 푸시
+          tags: ${{ vars.DOCKER_IMAGE }}  # 이미지 태그 설정
+
+      - name: EC2 서버에 배포 디렉토리 생성
+        run: |
+          ssh -i ~/.ssh/ec2.pem -o StrictHostKeyChecking=no ${{ secrets.DEV_EC2_HOST }} \
+          "mkdir -p ${{ steps.vars.outputs.DEPLOY_DIR }}"
+
+      - name: docker-compose.yml 파일 EC2 서버로 복사
+        run: |
+          scp -i ~/.ssh/ec2.pem -o StrictHostKeyChecking=no docker-compose.yml \
+          ${{ secrets.DEV_EC2_HOST }}:${{ steps.vars.outputs.DEPLOY_DIR }}/docker-compose.yml      
+
+      - name: 생성한 .env 파일 EC2 서버로 복사
+        run: |
+          scp -i ~/.ssh/ec2.pem -o StrictHostKeyChecking=no .env \
+          ${{ secrets.DEV_EC2_HOST }}:${{ steps.vars.outputs.DEPLOY_DIR }}/.env
+
+      - name: EC2 서버에서 docker-compose를 사용해 배포
+        run: |
+          ssh -i ~/.ssh/ec2.pem -o StrictHostKeyChecking=no ${{ secrets.DEV_EC2_HOST }} << EOF
+            cd ${{ steps.vars.outputs.DEPLOY_DIR }}
+            docker compose pull    # 최신 이미지를 가져옴
+            docker compose up -d   # 컨테이너를 백그라운드로 실행
+          EOF

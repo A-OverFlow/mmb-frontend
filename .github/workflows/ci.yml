@@ -1,26 +1,32 @@
-name: Frontend CI
+name: DEV CI - Vite React
 
+# 언제 이 워크플로우를 실행할지 설정
 on:
   pull_request:
     branches:
-      - develop
       - master
+      - develop
+  push:
+    branches:
+      - master
+      - develop
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v3
+      - name: 현재 레포지토리 코드 내려받기
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Node.js 20버전 설치 및 npm 캐시 사용
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: 20
+          cache: 'npm'
 
-      - name: Install dependencies
+      - name: 프로젝트 의존성 설치
         run: npm install
 
-      - name: Build
+      - name: Vite 빌드 실행
         run: npm run build

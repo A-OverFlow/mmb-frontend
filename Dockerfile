@@ -1,28 +1,33 @@
-# 1단계: 빌드
-FROM node:18-alpine AS build
+# 1단계: 빌드 환경
+FROM node:20 AS builder
+
+# 작업 디렉토리 생성
 WORKDIR /app
 
-# 빌드 인자 (환경 종류: dev, staging, production 등)
-ARG VITE_ENV=dev
-ENV VITE_ENV=${VITE_ENV}
-
+# package.json과 package-lock.json 복사
 COPY package*.json ./
+
+# 의존성 설치
 RUN npm install
 
+# 소스 코드 복사
 COPY . .
 
-# 환경 설정 파일 복사: .env.{VITE_ENV} → .env 로 치환
-RUN cp .env.${VITE_ENV} .env
-
+# .env 파일은 이미 준비되었다고 가정
+# 빌드 수행
 RUN npm run build
 
-# 2단계: nginx로 배포
+# 2단계: 실행 환경 (Nginx)
 FROM nginx:alpine
 
-# Nginx 기본 경로 생성
-RUN mkdir -p /usr/share/nginx/html
+# 커스텀 Nginx 설정 복사
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# 빌드 결과 복사
-COPY --from=build /app/dist /usr/share/nginx/html
+# 빌드된 정적 파일 복사
+COPY --from=builder /app/dist /usr/share/nginx/html
 
+# 기본 포트 80 노출
+EXPOSE 80 443
+
+# Nginx 실행 (기본 엔트리포인트 사용)
 CMD ["nginx", "-g", "daemon off;"]

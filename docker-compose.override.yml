@@ -1,0 +1,6 @@
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mumulbo/mmb-frontend:local

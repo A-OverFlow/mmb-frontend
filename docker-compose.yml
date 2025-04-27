@@ -1,0 +1,16 @@
+services:
+  nginx:
+    image: ${DOCKER_IMAGE}
+    container_name: mumulbo-nginx
+    ports:
+      - "${NGINX_PORT_HTTP}:80"
+      - "${NGINX_PORT_HTTPS}:443"
+    volumes:
+      - ${CERTS_HOST_PATH}:/certs:ro
+    networks:
+      - mumulbo-network
+    restart: unless-stopped
+
+networks:
+  mumulbo-network:
+    external: true
