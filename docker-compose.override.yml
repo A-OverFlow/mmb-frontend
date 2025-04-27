@@ -1,3 +1,5 @@
+# 로컬 개발 환경 전용 설정
+# docker compose up -d --build
 services:
   nginx:
     build:
