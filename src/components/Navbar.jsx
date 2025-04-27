@@ -20,7 +20,7 @@ import {useNavigate} from 'react-router-dom';
 const Navbar = () => {
   const navigate = useNavigate();
   const accessToken = useSelector((state) => state.auth.accessToken);
-  const LOGOUT_URL = import.meta.env.VITE_API_GATEWAY_URL + "/logout";
+  const LOGOUT_URL = import.meta.env.VITE_BACKEND_API_HOST + "/logout";
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const toggleDrawer = useCallback(

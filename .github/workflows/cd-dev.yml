@@ -32,15 +32,15 @@ jobs:
           echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> $GITHUB_OUTPUT  # 저장소 이름 추출
           echo "DEPLOY_DIR=${{ secrets.DEV_DEPLOY_PATH }}/${GITHUB_REPOSITORY##*/}" >> $GITHUB_OUTPUT  # 배포 경로 설정
 
-      - name: Inject GitHub Secrets to nginx.conf
+      - name: API GateWay 서버 주소 nginx.conf 파일에 삽입
         run: |
-          export API_GATEWAY_URL=${{ vars.VITE_API_GATEWAY_URL }}
-          envsubst '${API_GATEWAY_URL}' < nginx.conf > nginx.conf.out
+          export API_GATEWAY_HOST=${{ vars.API_GATEWAY_HOST }}
+          envsubst '${API_GATEWAY_HOST}' < nginx.conf > nginx.conf.out
           mv nginx.conf.out nginx.conf
 
       - name: VITE와 Compose에 필요한 .env 파일 생성
         run: |
-          echo "VITE_API_GATEWAY_URL=${{ vars.VITE_API_GATEWAY_URL }}" >> .env
+          echo "VITE_BACKEND_API_HOST=${{ vars.VITE_BACKEND_API_HOST }}" >> .env
           echo "VITE_GOOGLE_CLIENT_ID=${{ vars.VITE_GOOGLE_CLIENT_ID }}" >> .env
           echo "DOCKER_IMAGE=${{ vars.DOCKER_IMAGE }}" > .env
           echo "NGINX_PORT_HTTP=${{ vars.NGINX_PORT_HTTP }}" >> .env

@@ -9,7 +9,6 @@ services:
       - ${CERTS_HOST_PATH}:/certs:ro
     networks:
       - mumulbo-network
-    restart: unless-stopped
 
 networks:
   mumulbo-network:
