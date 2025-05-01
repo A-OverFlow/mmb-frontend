@@ -1,7 +1,7 @@
 services:
   nginx:
-    image: ${DOCKER_IMAGE}
-    container_name: mumulbo-nginx
+    image: ${DOCKER_IMAGE}:dev
+    container_name: ${APPLICATION_NAME}
     ports:
       - "${NGINX_PORT_HTTP}:80"
       - "${NGINX_PORT_HTTPS}:443"
