@@ -44,6 +44,7 @@ jobs:
           echo "VITE_BACKEND_API_HOST=${{ vars.VITE_BACKEND_API_HOST }}" >> .env
           echo "VITE_GOOGLE_CLIENT_ID=${{ vars.VITE_GOOGLE_CLIENT_ID }}" >> .env
           echo "DOCKER_IMAGE=${{ vars.DOCKER_IMAGE }}" >> .env
+          echo "MMB_DOCKER_NETWORK=${{ vars.MMB_DOCKER_NETWORK }}" >> .env
           echo "NGINX_PORT_HTTP=${{ vars.NGINX_PORT_HTTP }}" >> .env
           echo "NGINX_PORT_HTTPS=${{ vars.NGINX_PORT_HTTPS }}" >> .env
 
