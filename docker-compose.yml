@@ -13,3 +13,4 @@ services:
 networks:
   mumulbo-network:
     external: true
+    name: ${MMB_DOCKER_NETWORK}
