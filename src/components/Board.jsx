@@ -107,7 +107,7 @@ const Board = ({posts, fetchMorePosts, hasMore, onEditPost, onDeletePost}) => {
                     marginBottom: "10px",
                   }}
                 >
-                  {post.body}
+                  {post.content}
                 </Typography>
               </Box>
 

@@ -3,7 +3,7 @@ import {Box, Button, Collapse, Paper, TextField, Typography} from "@mui/material
 
 const PostInput = ({onSubmit, editingPost, onCancelEdit}) => {
   const [subject, setSubject] = useState(editingPost ? editingPost.subject : "");
-  const [content, setContent] = useState(editingPost ? editingPost.body : "");
+  const [content, setContent] = useState(editingPost ? editingPost.content : "");
   const [expanded, setExpanded] = useState(!!editingPost);
   const [titleError, setTitleError] = useState(false);
   const [contentError, setContentError] = useState(false);
@@ -13,7 +13,7 @@ const PostInput = ({onSubmit, editingPost, onCancelEdit}) => {
   useEffect(() => {
     if (editingPost) {
       setSubject(editingPost.subject);
-      setContent(editingPost.body);
+      setContent(editingPost.content);
       setExpanded(true);
 
       // 수정 모드일 때 화면의 최상단으로 스크롤 이동
