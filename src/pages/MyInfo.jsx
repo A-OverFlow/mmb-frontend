@@ -20,7 +20,7 @@ const MyInfo = () => {
     if (newNickname.length < 2 || newNickname.length > 10 || /\s/.test(newNickname)) {
       return; // 조건을 만족하지 않으면 API 호출 방지
     }
-    await axios.patch("/users/me", {nickname: newNickname});
+    await axios.patch("/members/me", {nickname: newNickname});
     setNickname(newNickname);
     dispatch(setUserNickname(newNickname));
     dispatch(alert.success("닉네임이 성공적으로 변경되었습니다."))
@@ -33,7 +33,7 @@ const MyInfo = () => {
   };
 
   const handleConfirmDeletion = async () => {
-    await axios.delete("/users/me");
+    await axios.delete("/members/me");
     await axios.delete('/auth/refresh-token');
     dispatch(logout());
     dispatch(alert.success("회원 탈퇴가 완료되었습니다."))

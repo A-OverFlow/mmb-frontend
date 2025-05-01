@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {useDispatch} from "react-redux";
 import {logout, setAccessToken, setUserId, setUserNickname} from "../slices/authSlice";
-import {Backdrop, Box, Button, CircularProgress, Typography} from "@mui/material";
+import {Backdrop, Box, CircularProgress, Typography} from "@mui/material";
 import axios from '../api/axios.js';
 
 const Login = () => {
@@ -10,6 +10,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
 
+  // todo 이 로직이 지금 필요가 없음
   useEffect(() => {
     const handleAuth = async () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -27,7 +28,7 @@ const Login = () => {
       if (token) {
         dispatch(setAccessToken(token));
         try {
-          const response = await axios.get("/users/me");
+          const response = await axios.get("/members/me");
           const user = response.data;
           dispatch(setUserId(user.id));
           dispatch(setUserNickname(user.nickname));
@@ -70,13 +71,20 @@ const Login = () => {
       });
 
       const accessToken = loginResponse.data.accessToken;
+      const refreshToken = loginResponse.data.refreshToken;
+
       dispatch(setAccessToken(accessToken));
 
-      const userResponse = await axios.get("/users/me");
+      // todo 서버에서 쿠키로 설정하도록 협의
+      //  reissue api도 토큰을 읽어서 처리하도록 협의
+      // 7일간 유지
+      document.cookie = `refreshToken=${refreshToken}; path=/; max-age=${7 * 24 * 60 * 60}; samesite=strict`;
+
+      const userResponse = await axios.get("/v1/members/me");
       const user = userResponse.data;
 
       dispatch(setUserId(user.id));
-      dispatch(setUserNickname(user.nickname));
+      dispatch(setUserNickname(user.username));
       navigate('/');
     } catch (err) {
       console.error("Google login failed:", err);

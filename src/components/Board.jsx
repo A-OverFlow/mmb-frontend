@@ -1,11 +1,10 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { Box, Card, CardContent, CircularProgress, Typography, IconButton, Menu, MenuItem, Button } from "@mui/material";
-import { useSelector } from "react-redux"; // Redux에서 상태 가져오기
-import dayjs from "dayjs";
+import {Box, Button, Card, CardContent, CircularProgress, IconButton, Menu, MenuItem, Typography} from "@mui/material";
+import {useSelector} from "react-redux"; // Redux에서 상태 가져오기
 import MoreVertIcon from "@mui/icons-material/MoreVert"; // 점 3개 아이콘
 
-const Board = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) => {
+const Board = ({posts, fetchMorePosts, hasMore, onEditPost, onDeletePost}) => {
   const userId = useSelector((state) => state.auth.userId); // Redux에서 사용자 정보 가져오기
   const [anchorEl, setAnchorEl] = useState(null); // 메뉴 anchor element 관리
   const [selectedPost, setSelectedPost] = useState(null); // 선택된 게시글 ID 관리
@@ -58,7 +57,7 @@ const Board = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) => 
         dataLength={posts.length} // 현재 로딩된 게시글 수
         next={() => fetchMorePosts(false)} // 추가 게시글 로드
         hasMore={hasMore} // 더 불러올 데이터가 있는지 여부
-        loader={<CircularProgress sx={{ display: "block", margin: "20px auto" }} />}
+        loader={<CircularProgress sx={{display: "block", margin: "20px auto"}}/>}
         endMessage={<Typography align="center" mb={3}>- 끝 -</Typography>}
       >
         {posts.map((post) => (
@@ -74,24 +73,23 @@ const Board = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) => 
             <CardContent>
               <Typography
                 variant="body2"
-                sx={{ marginBottom: "5px" }}
+                sx={{marginBottom: "5px"}}
               >
                 <Typography
                   component="span"
                   color="primary.main"  // 테마에서 정의한 primary 색상 적용
-                  sx={{ marginRight: "4px" }} // 닉네임과 ID 사이 간격
+                  sx={{marginRight: "4px"}} // 닉네임과 ID 사이 간격
                 >
-                  {post.userNickname}
+                  {post.author}
                 </Typography>
                 <Typography component="span" color="text.secondary">
                   #{post.userId}
                 </Typography>
               </Typography>
 
-              <Typography variant="h6" sx={{ marginBottom: "10px" }}>
-                {post.title}
+              <Typography variant="h6" sx={{marginBottom: "10px"}}>
+                {post.subject}
               </Typography>
-
 
 
               {/* 본문 내용 */}
@@ -115,11 +113,11 @@ const Board = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) => 
 
               {/* 더보기/간략히 버튼을 작성일 위에 배치 */}
               {showMoreButton[post.id] && !expandedPosts.includes(post.id) && (
-                <Box sx={{ textAlign: "right", marginBottom: "10px" }}>
+                <Box sx={{textAlign: "right", marginBottom: "10px"}}>
                   <Button
                     size="small"
                     onClick={() => toggleExpand(post.id)}
-                    sx={{ textTransform: "none", padding: 0 }}
+                    sx={{textTransform: "none", padding: 0}}
                   >
                     더보기
                   </Button>
@@ -128,26 +126,25 @@ const Board = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) => 
 
               {/* 간략히 버튼 */}
               {expandedPosts.includes(post.id) && (
-                <Box sx={{ textAlign: "right", marginTop: "10px" }}>
+                <Box sx={{textAlign: "right", marginTop: "10px"}}>
                   <Button
                     size="small"
                     onClick={() => toggleExpand(post.id)}
-                    sx={{ textTransform: "none", padding: 0 }}
+                    sx={{textTransform: "none", padding: 0}}
                   >
                     간략히
                   </Button>
                 </Box>
               )}
 
-              <Box sx={{ textAlign: "right", marginTop: "10px" }}>
+              <Box sx={{textAlign: "right", marginTop: "10px"}}>
                 <Typography variant="caption" color="text.secondary">
-                  작성일: {dayjs(post.createdAt).format("YYYY-MM-DD HH:mm")}
+                  작성일: {}
                 </Typography>
               </Box>
 
               {/* 사용자가 작성한 게시글에만 점 3개 아이콘을 표시 */}
-              {/*{userId && post.userId === userId && ( 일단 조건 없이 출력*/}
-              {
+              {userId && post.userId === userId && (
                 <IconButton
                   sx={{
                     position: "absolute",
@@ -156,9 +153,9 @@ const Board = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) => 
                   }}
                   onClick={(event) => handleMenuClick(event, post)}
                 >
-                  <MoreVertIcon />
+                  <MoreVertIcon/>
                 </IconButton>
-              }
+              )}
 
               {/* 메뉴 */}
               <Menu

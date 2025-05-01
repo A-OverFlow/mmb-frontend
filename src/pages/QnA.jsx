@@ -1,5 +1,5 @@
 // QnA.jsx
-import React, {useState, useRef, useEffect} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {useSelector} from "react-redux";
 import axios from "../api/axios";
 import PostInput from "../components/PostInput";
@@ -10,29 +10,25 @@ const QnA = () => {
   const [editingPost, setEditingPost] = useState(null); // 수정 중인 게시글
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0);
-  // const accessToken = useSelector((state) => state.auth.accessToken);
-  const accessToken = true; // 아직 백엔드가 없으니까 일단 true로 설정
+  const accessToken = useSelector((state) => state.auth.accessToken);
   const isFetching = useRef(false);
+  const userNickname = useSelector((state) => state.auth.userNickname)
 
   const fetchPosts = async (reset = false) => {
     try {
       if (isFetching.current) return;
       isFetching.current = true;
 
-      // JSONPlaceholder API
-      // todo 백엔드 API 교체
-      const response = await axios.get("https://jsonplaceholder.typicode.com/posts", {
-        params: {
-          _page: reset ? 1 : page,  // JSONPlaceholder는 페이지가 1부터 시작
-          _limit: 10,               // 한 페이지당 10개 데이터
-        },
-      });
-
+      const response = await axios.get("/v1/questions");
       const newPosts = response.data;
       console.log(newPosts);
-      setPosts((prevPosts) => (reset ? newPosts : [...prevPosts, ...newPosts]));
-      setHasMore(newPosts.length > 0);
-      setPage((prevPage) => (reset ? 1 : prevPage + 1));
+
+      // todo 페이징 아직 없음
+      // setPosts((prevPosts) => (reset ? newPosts : [...prevPosts, ...newPosts]));
+      // setHasMore(newPosts.length > 0);
+      // setPage((prevPage) => (reset ? 1 : prevPage + 1));
+
+      setPosts(newPosts);
 
       isFetching.current = false;
     } catch (error) {
@@ -45,11 +41,12 @@ const QnA = () => {
     try {
       if (post.id) {
         // 수정 요청
-        await axios.put(`/qna/posts/${post.id}`, post);
+        await axios.put(`/v1/questions/${post.id}`, post);
         setEditingPost(null); // 수정 완료 후 초기화
       } else {
         // 새 게시글 작성
-        await axios.post("/qna/posts", post);
+        post.author = userNickname; // todo 작성자 설정할 필요 없을 듯
+        await axios.post("/v1/questions", post);
       }
       fetchPosts(true);
     } catch (error) {
@@ -68,7 +65,7 @@ const QnA = () => {
 
   const handleDeletePost = async (postId) => {
     try {
-      await axios.delete(`/qna/posts/${postId}`);
+      await axios.delete(`/v1/questions/${postId}`);
       fetchPosts(true);
     } catch (error) {
       console.error("Error deleting post:", error);

@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {Box, Button, Collapse, Paper, TextField, Typography} from "@mui/material";
 
 const PostInput = ({onSubmit, editingPost, onCancelEdit}) => {
-  const [title, setTitle] = useState(editingPost ? editingPost.title : "");
+  const [subject, setSubject] = useState(editingPost ? editingPost.subject : "");
   const [content, setContent] = useState(editingPost ? editingPost.body : "");
   const [expanded, setExpanded] = useState(!!editingPost);
   const [titleError, setTitleError] = useState(false);
@@ -12,7 +12,7 @@ const PostInput = ({onSubmit, editingPost, onCancelEdit}) => {
 
   useEffect(() => {
     if (editingPost) {
-      setTitle(editingPost.title);
+      setSubject(editingPost.subject);
       setContent(editingPost.body);
       setExpanded(true);
 
@@ -22,7 +22,7 @@ const PostInput = ({onSubmit, editingPost, onCancelEdit}) => {
   }, [editingPost]);
 
   const handleClear = () => {
-    setTitle("");
+    setSubject("");
     setContent("");
     setExpanded(false);
     setTitleError(false);
@@ -36,7 +36,7 @@ const PostInput = ({onSubmit, editingPost, onCancelEdit}) => {
     let valid = true;
 
     // 제목 50자 이하, 내용 1000자 이하로 제한
-    if (title.length > 50) {
+    if (subject.length > 50) {
       setTitleError(true);
       setTitleHelperText("제목은 50자 이내로 입력해주세요.");
       valid = false;
@@ -55,8 +55,8 @@ const PostInput = ({onSubmit, editingPost, onCancelEdit}) => {
     }
 
     // 유효성 검사 통과 시에만 제출
-    if (valid && title && content) {
-      onSubmit({title, content, id: editingPost?.id});
+    if (valid && subject && content) {
+      onSubmit({subject, content, id: editingPost?.id});
       handleClear();
     }
   };
@@ -83,8 +83,8 @@ const PostInput = ({onSubmit, editingPost, onCancelEdit}) => {
           <TextField
             fullWidth
             label="제목"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault(); // 기본 엔터키 동작 방지
