@@ -24,7 +24,6 @@ const AppContent = () => {
     return null;
   };
 
-
   useEffect(() => {
     const fetchAccessToken = async () => {
       try {
