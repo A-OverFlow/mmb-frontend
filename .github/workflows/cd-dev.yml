@@ -41,6 +41,7 @@ jobs:
       - name: VITE와 Compose에 필요한 .env 파일 생성
         run: |
           > .env
+          echo "APPLICATION_NAME=${{ vars.APPLICATION_NAME }}" >> .env
           echo "VITE_BACKEND_API_HOST=${{ vars.VITE_BACKEND_API_HOST }}" >> .env
           echo "VITE_GOOGLE_CLIENT_ID=${{ vars.VITE_GOOGLE_CLIENT_ID }}" >> .env
           echo "DOCKER_IMAGE=${{ vars.DOCKER_IMAGE }}" >> .env
