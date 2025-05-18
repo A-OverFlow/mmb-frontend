@@ -28,7 +28,7 @@ const QnA = () => {
       // setHasMore(newPosts.length > 0);
       // setPage((prevPage) => (reset ? 1 : prevPage + 1));
 
-      setPosts(newPosts);
+      setPosts(newPosts.content);
 
       isFetching.current = false;
     } catch (error) {

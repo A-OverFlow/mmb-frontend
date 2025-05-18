@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import {Box, Button, Card, CardContent, CircularProgress, IconButton, Menu, MenuItem, Typography} from "@mui/material";
 import {useSelector} from "react-redux"; // Redux에서 상태 가져오기
-import MoreVertIcon from "@mui/icons-material/MoreVert"; // 점 3개 아이콘
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 const Board = ({posts, fetchMorePosts, hasMore, onEditPost, onDeletePost}) => {
   const userId = useSelector((state) => state.auth.userId); // Redux에서 사용자 정보 가져오기
@@ -80,10 +80,10 @@ const Board = ({posts, fetchMorePosts, hasMore, onEditPost, onDeletePost}) => {
                   color="primary.main"  // 테마에서 정의한 primary 색상 적용
                   sx={{marginRight: "4px"}} // 닉네임과 ID 사이 간격
                 >
-                  {post.author}
+                  {post.author.name}
                 </Typography>
                 <Typography component="span" color="text.secondary">
-                  #{post.userId}
+                  #{post.author.id}
                 </Typography>
               </Typography>
 
@@ -139,7 +139,7 @@ const Board = ({posts, fetchMorePosts, hasMore, onEditPost, onDeletePost}) => {
 
               <Box sx={{textAlign: "right", marginTop: "10px"}}>
                 <Typography variant="caption" color="text.secondary">
-                  작성일: {}
+                  작성일: {post.createAt}
                 </Typography>
               </Box>
 
