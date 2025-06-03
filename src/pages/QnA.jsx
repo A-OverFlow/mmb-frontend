@@ -12,7 +12,7 @@ const QnA = () => {
   const [page, setPage] = useState(0);
   const accessToken = useSelector((state) => state.auth.accessToken);
   const isFetching = useRef(false);
-  const userNickname = useSelector((state) => state.auth.userNickname)
+  const userNickname = useSelector((state) => state.auth.nickname)
 
   const fetchPosts = async (reset = false) => {
     try {
@@ -21,7 +21,6 @@ const QnA = () => {
 
       const response = await axios.get("/v1/questions");
       const newPosts = response.data;
-      console.log(newPosts);
 
       // todo 페이징 아직 없음
       // setPosts((prevPosts) => (reset ? newPosts : [...prevPosts, ...newPosts]));

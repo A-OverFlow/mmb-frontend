@@ -4,8 +4,8 @@ import {
   DialogTitle, TextField, Typography
 } from "@mui/material";
 import axios from "../api/axios.js";
-import { useDispatch } from "react-redux";
-import { logout, setUserNickname } from "../slices/authSlice.js";
+import {useDispatch, useSelector} from "react-redux";
+import { logout, setNickname } from "../slices/authSlice.js";
 import { useNavigate } from "react-router-dom";
 import { alert } from "../slices/alertSlice.js";
 
@@ -17,11 +17,12 @@ const MyInfo = () => {
   const [isEditing, setIsEditing] = useState(false);
 
   // 사용자 정보 상태
-  const [name, setName] = useState("");
-  const [nickname, setNickname] = useState("");
-  const [email, setEmail] = useState("");
+  const [name, setUserName] = useState("");
+  const [nickname, setUserNickname] = useState("");
+  const [email, setUserEmail] = useState("");
 
-  const [newNickname, setNewNickname] = useState("");
+  const [newNickname, setUserNewNickname] = useState("");
+  const userId = useSelector((state) => state.auth.id); // Redux에서 사용자 정보 가져오기
 
   // 페이지 로드시 사용자 정보 조회
   useEffect(() => {
@@ -30,12 +31,12 @@ const MyInfo = () => {
         const response = await axios.get("/v1/members/me/profile");
         const { name, nickname, email } = response.data;
 
-        setName(name);
-        setNickname(nickname);
-        setEmail(email);
-        setNewNickname(nickname);
+        setUserName(name);
+        setUserNickname(nickname);
+        setUserEmail(email);
+        setUserNewNickname(nickname);
 
-        dispatch(setUserNickname(nickname));
+        dispatch(setNickname(nickname));
       } catch (error) {
         console.error("사용자 정보 조회 실패:", error);
         dispatch(alert.error("사용자 정보를 불러오지 못했습니다."));
@@ -52,8 +53,8 @@ const MyInfo = () => {
 
     try {
       await axios.patch("/v1/members/me/profile/info", { nickname: newNickname });
-      setNickname(newNickname);
-      dispatch(setUserNickname(newNickname));
+      setUserNickname(newNickname);
+      dispatch(setNickname(newNickname));
       dispatch(alert.success("닉네임이 성공적으로 변경되었습니다."));
       setIsEditing(false);
     } catch (error) {
@@ -64,7 +65,7 @@ const MyInfo = () => {
 
   const handleNicknameCancel = () => {
     setIsEditing(false);
-    setNewNickname(nickname);
+    setUserNewNickname(nickname);
   };
 
   const handleConfirmDeletion = async () => {
@@ -87,9 +88,10 @@ const MyInfo = () => {
 
       {/* 사용자 정보 출력 */}
       <Box sx={{ marginBottom: 2 }}>
+        <Typography variant="h6">ID: {userId}</Typography>
         <Typography variant="h6">이름: {name}</Typography>
-        <Typography variant="h6">이메일: {email}</Typography>
         <Typography variant="h6">닉네임: {nickname}</Typography>
+        <Typography variant="h6">이메일: {email}</Typography>
       </Box>
 
       {/* 닉네임 수정 */}
@@ -111,7 +113,7 @@ const MyInfo = () => {
             label="닉네임"
             variant="outlined"
             value={newNickname}
-            onChange={(e) => setNewNickname(e.target.value)}
+            onChange={(e) => setUserNewNickname(e.target.value)}
             slotProps={{ htmlInput: { maxLength: 10 } }}
             sx={{ width: "100%", marginTop: 2 }}
           />
