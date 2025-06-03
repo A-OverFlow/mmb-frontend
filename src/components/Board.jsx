@@ -5,7 +5,7 @@ import {useSelector} from "react-redux"; // Redux에서 상태 가져오기
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 const Board = ({posts, fetchMorePosts, hasMore, onEditPost, onDeletePost}) => {
-  const userId = useSelector((state) => state.auth.userId); // Redux에서 사용자 정보 가져오기
+  const userId = useSelector((state) => state.auth.id); // Redux에서 사용자 정보 가져오기
   const [anchorEl, setAnchorEl] = useState(null); // 메뉴 anchor element 관리
   const [selectedPost, setSelectedPost] = useState(null); // 선택된 게시글 ID 관리
   const [expandedPosts, setExpandedPosts] = useState([]); // "더보기"가 눌린 게시글 ID 목록
@@ -144,7 +144,7 @@ const Board = ({posts, fetchMorePosts, hasMore, onEditPost, onDeletePost}) => {
               </Box>
 
               {/* 사용자가 작성한 게시글에만 점 3개 아이콘을 표시 */}
-              {userId && post.userId === userId && (
+              {userId && post.author.id === userId && (
                 <IconButton
                   sx={{
                     position: "absolute",

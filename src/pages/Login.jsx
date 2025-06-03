@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {useDispatch} from "react-redux";
-import {logout, setAccessToken, setUserId, setUserNickname} from "../slices/authSlice";
+import {logout, setAccessToken, setId, setNickname} from "../slices/authSlice";
 import {Backdrop, Box, CircularProgress, Typography} from "@mui/material";
 import axios from '../api/axios.js';
 
@@ -30,8 +30,8 @@ const Login = () => {
         try {
           const response = await axios.get("/members/me");
           const user = response.data;
-          dispatch(setUserId(user.id));
-          dispatch(setUserNickname(user.nickname));
+          dispatch(setId(user.id));
+          dispatch(setNickname(user.nickname));
           navigate('/');
         } catch (error) {
           console.error("Failed to fetch user data", error);
@@ -83,8 +83,8 @@ const Login = () => {
       const userResponse = await axios.get("/v1/members/me");
       const user = userResponse.data;
 
-      dispatch(setUserId(user.id));
-      dispatch(setUserNickname(user.username));
+      dispatch(setId(user.id));
+      dispatch(setNickname(user.nickname));
       navigate('/');
     } catch (err) {
       console.error("Google login failed:", err);
