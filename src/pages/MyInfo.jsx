@@ -27,7 +27,7 @@ const MyInfo = () => {
   useEffect(() => {
     const fetchMyInfo = async () => {
       try {
-        const response = await axios.get("/v1/members/me");
+        const response = await axios.get("/v1/members/me/profile");
         const { name, nickname, email } = response.data;
 
         setName(name);
@@ -51,7 +51,7 @@ const MyInfo = () => {
     }
 
     try {
-      await axios.patch("/members/me", { nickname: newNickname });
+      await axios.patch("/v1/members/me/profile/info", { nickname: newNickname });
       setNickname(newNickname);
       dispatch(setUserNickname(newNickname));
       dispatch(alert.success("닉네임이 성공적으로 변경되었습니다."));

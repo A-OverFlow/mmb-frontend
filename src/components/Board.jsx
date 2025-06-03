@@ -139,7 +139,7 @@ const Board = ({posts, fetchMorePosts, hasMore, onEditPost, onDeletePost}) => {
 
               <Box sx={{textAlign: "right", marginTop: "10px"}}>
                 <Typography variant="caption" color="text.secondary">
-                  작성일: {post.createAt}
+                  작성일: {post.createdAt}
                 </Typography>
               </Box>
 
