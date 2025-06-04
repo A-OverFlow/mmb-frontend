@@ -80,7 +80,7 @@ const Board = ({posts, fetchMorePosts, hasMore, onEditPost, onDeletePost}) => {
                   color="primary.main"  // 테마에서 정의한 primary 색상 적용
                   sx={{marginRight: "4px"}} // 닉네임과 ID 사이 간격
                 >
-                  {post.author.name}
+                  {post.author.nickname}
                 </Typography>
                 <Typography component="span" color="text.secondary">
                   #{post.author.id}
