@@ -71,14 +71,21 @@ const Board = ({posts, fetchMorePosts, hasMore, onEditPost, onDeletePost}) => {
             }}
           >
             <CardContent>
+              {/* 게시글 번호 */}
               <Typography
-                variant="body2"
-                sx={{marginBottom: "5px"}}
+                variant="caption"
+                color="text.secondary"
+                sx={{ fontWeight: 'bold', marginBottom: '4px' }}
               >
+                Question {post.id}
+              </Typography>
+
+              {/* 작성자 닉네임과 ID */}
+              <Typography variant="body2" sx={{ marginBottom: '8px' }}>
                 <Typography
                   component="span"
-                  color="primary.main"  // 테마에서 정의한 primary 색상 적용
-                  sx={{marginRight: "4px"}} // 닉네임과 ID 사이 간격
+                  color="primary.main"
+                  sx={{ marginRight: '4px' }}
                 >
                   {post.author.nickname}
                 </Typography>
@@ -87,10 +94,10 @@ const Board = ({posts, fetchMorePosts, hasMore, onEditPost, onDeletePost}) => {
                 </Typography>
               </Typography>
 
-              <Typography variant="h6" sx={{marginBottom: "10px"}}>
+              {/* 제목 */}
+              <Typography variant="h6" sx={{ marginBottom: '10px' }}>
                 {post.subject}
               </Typography>
-
 
               {/* 본문 내용 */}
               <Box
