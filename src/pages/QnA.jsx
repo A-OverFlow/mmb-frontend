@@ -1,6 +1,5 @@
-// QnA.jsx
-import React, {useEffect, useRef, useState} from "react";
-import {useSelector} from "react-redux";
+import React, { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import axios from "../api/axios";
 import PostInput from "../components/PostInput";
 import Board from "../components/Board";
@@ -8,46 +7,51 @@ import Board from "../components/Board";
 const QnA = () => {
   const [posts, setPosts] = useState([]);
   const [editingPost, setEditingPost] = useState(null); // 수정 중인 게시글
-  const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true); // 다음 페이지 존재 여부
+  const [lastId, setLastId] = useState(null); // 마지막 질문 ID
+  const isFetching = useRef(false); // 중복 호출 방지
+  const loaderRef = useRef(null); // 무한 스크롤 트리거
   const accessToken = useSelector((state) => state.auth.accessToken);
-  const isFetching = useRef(false);
-  const userNickname = useSelector((state) => state.auth.nickname)
+  const userNickname = useSelector((state) => state.auth.nickname);
 
   const fetchPosts = async (reset = false) => {
     try {
-      if (isFetching.current) return;
+      if (isFetching.current || (!hasMore && !reset)) return;
       isFetching.current = true;
 
-      const response = await axios.get("/v1/questions");
-      const newPosts = response.data;
+      const url = lastId !== null && !reset
+        ? `/v1/questions?lastId=${lastId}&pageSize=10`
+        : `/v1/questions?pageSize=10`;
 
-      // todo 페이징 아직 없음
-      // setPosts((prevPosts) => (reset ? newPosts : [...prevPosts, ...newPosts]));
-      // setHasMore(newPosts.length > 0);
-      // setPage((prevPage) => (reset ? 1 : prevPage + 1));
+      const response = await axios.get(url);
+      const { questions, hasNext, lastId: newLastId } = response.data;
 
-      setPosts(newPosts.questions);
+      setPosts(prev => {
+        const combined = reset ? questions : [...prev, ...questions];
+        const uniqueMap = new Map(combined.map(post => [post.id, post]));
+        return Array.from(uniqueMap.values());
+      });
 
-      isFetching.current = false;
+      setHasMore(hasNext);
+      setLastId(newLastId);
     } catch (error) {
       console.error("Error fetching posts:", error);
+    } finally {
       isFetching.current = false;
     }
   };
 
+
   const handlePostSubmit = async (post) => {
     try {
       if (post.id) {
-        // 수정 요청
         await axios.put(`/v1/questions/${post.id}`, post);
-        setEditingPost(null); // 수정 완료 후 초기화
+        setEditingPost(null);
       } else {
-        // 새 게시글 작성
-        post.author = userNickname; // todo 작성자 설정할 필요 없을 듯
+        post.author = userNickname; // 백엔드에서 설정해줄 경우 생략 가능
         await axios.post("/v1/questions", post);
       }
-      fetchPosts(true);
+      fetchPosts(true); // 목록 리셋
     } catch (error) {
       console.error("Error submitting post:", error);
     }
@@ -55,35 +59,56 @@ const QnA = () => {
 
   const handleEditPost = (postId) => {
     const postToEdit = posts.find((post) => post.id === postId);
-    setEditingPost(postToEdit); // 수정 모드로 설정
+    setEditingPost(postToEdit);
   };
 
   const handleCancelEdit = () => {
-    setEditingPost(null); // 수정 취소
+    setEditingPost(null);
   };
 
   const handleDeletePost = async (postId) => {
     try {
       await axios.delete(`/v1/questions/${postId}`);
-      fetchPosts(true);
+      fetchPosts(true); // 삭제 후 목록 갱신
     } catch (error) {
       console.error("Error deleting post:", error);
     }
   };
 
   useEffect(() => {
-    fetchPosts(true);
+    fetchPosts(true); // 초기 데이터 로딩
   }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchPosts();
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+
+    return () => {
+      if (loaderRef.current) {
+        observer.unobserve(loaderRef.current);
+      }
+    };
+  }, [posts, hasMore]);
 
   return (
     <>
-      {accessToken ? (
+      {accessToken && (
         <PostInput
           onSubmit={handlePostSubmit}
           editingPost={editingPost}
           onCancelEdit={handleCancelEdit}
         />
-      ) : null}
+      )}
       <Board
         posts={posts}
         fetchMorePosts={fetchPosts}
@@ -91,6 +116,7 @@ const QnA = () => {
         onEditPost={handleEditPost}
         onDeletePost={handleDeletePost}
       />
+      <div ref={loaderRef} style={{ height: 30 }} />
     </>
   );
 };
