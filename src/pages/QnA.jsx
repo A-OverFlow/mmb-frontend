@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Box, FormControlLabel, Switch } from "@mui/material";
 import { useSelector } from "react-redux";
 import axios from "../api/axios";
 import PostInput from "../components/PostInput";
@@ -6,11 +7,14 @@ import Board from "../components/Board";
 
 const QnA = () => {
   const [posts, setPosts] = useState([]);
-  const [editingPost, setEditingPost] = useState(null); // 수정 중인 게시글
-  const [hasMore, setHasMore] = useState(true); // 다음 페이지 존재 여부
-  const [lastId, setLastId] = useState(null); // 마지막 질문 ID
-  const isFetching = useRef(false); // 중복 호출 방지
-  const loaderRef = useRef(null); // 무한 스크롤 트리거
+  const [editingPost, setEditingPost] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [lastId, setLastId] = useState(null);
+  const [showOnlyMine, setShowOnlyMine] = useState(false); // ✅ 스위치 상태
+  const isFetching = useRef(false);
+  const loaderRef = useRef(null);
+
+  const userId = useSelector((state) => state.auth.id);
   const accessToken = useSelector((state) => state.auth.accessToken);
   const userNickname = useSelector((state) => state.auth.nickname);
 
@@ -19,16 +23,19 @@ const QnA = () => {
       if (isFetching.current || (!hasMore && !reset)) return;
       isFetching.current = true;
 
-      const url = lastId !== null && !reset
-        ? `/v1/questions?lastId=${lastId}&pageSize=10`
-        : `/v1/questions?pageSize=10`;
+      const params = new URLSearchParams();
+      params.append("pageSize", 10);
+      if (!reset && lastId) params.append("lastId", lastId);
+      if (showOnlyMine) params.append("authorId", userId); // ✅ 본인 글만 보기 적용
+
+      const url = `/v1/questions?${params.toString()}`;
 
       const response = await axios.get(url);
       const { questions, hasNext, lastId: newLastId } = response.data;
 
-      setPosts(prev => {
+      setPosts((prev) => {
         const combined = reset ? questions : [...prev, ...questions];
-        const uniqueMap = new Map(combined.map(post => [post.id, post]));
+        const uniqueMap = new Map(combined.map((post) => [post.id, post]));
         return Array.from(uniqueMap.values());
       });
 
@@ -41,17 +48,16 @@ const QnA = () => {
     }
   };
 
-
   const handlePostSubmit = async (post) => {
     try {
       if (post.id) {
         await axios.put(`/v1/questions/${post.id}`, post);
         setEditingPost(null);
       } else {
-        post.author = userNickname; // 백엔드에서 설정해줄 경우 생략 가능
+        post.author = userNickname;
         await axios.post("/v1/questions", post);
       }
-      fetchPosts(true); // 목록 리셋
+      fetchPosts(true);
     } catch (error) {
       console.error("Error submitting post:", error);
     }
@@ -69,15 +75,15 @@ const QnA = () => {
   const handleDeletePost = async (postId) => {
     try {
       await axios.delete(`/v1/questions/${postId}`);
-      fetchPosts(true); // 삭제 후 목록 갱신
+      fetchPosts(true);
     } catch (error) {
       console.error("Error deleting post:", error);
     }
   };
 
   useEffect(() => {
-    fetchPosts(true); // 초기 데이터 로딩
-  }, []);
+    fetchPosts(true); // 초기 또는 스위치 변경 시 호출
+  }, [showOnlyMine]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -109,6 +115,26 @@ const QnA = () => {
           onCancelEdit={handleCancelEdit}
         />
       )}
+
+      {accessToken && (
+        <Box sx={{ textAlign: "right", marginTop: 2, marginBottom: 1, paddingX: 2 }}>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showOnlyMine}
+                onChange={(e) => {
+                  setShowOnlyMine(e.target.checked);
+                  setLastId(null);
+                }}
+                color="primary"
+              />
+            }
+            label="내가 쓴 글만 보기"
+          />
+        </Box>
+      )}
+
+
       <Board
         posts={posts}
         fetchMorePosts={fetchPosts}
