@@ -88,9 +88,9 @@ const Home = () => {
       )}
 
       {/* 우측 하단에 고정된 채팅창 */}
-      <Box position="fixed" bottom={16} right={16}>
-        <ChatBox/>
-      </Box>
+      {/*<Box position="fixed" bottom={16} right={16}>*/}
+      {/*  <ChatBox/>*/}
+      {/*</Box>*/}
     </Box>
   );
 };

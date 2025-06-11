@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import {
+  Badge,
   Box,
   Button,
   Card,
@@ -10,19 +11,18 @@ import {
   Menu,
   MenuItem,
   Typography,
-  Badge,
 } from "@mui/material";
-import { useSelector } from "react-redux";
+import {useSelector} from "react-redux";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import Answer from "./Answer";
 import axios from "../api/axios";
-import SurveyCorpsIcon from '@/components/icons/SurveyCorpsIcon';
+import UserInfo from "../components/UserInfo.jsx";
 
 /**
  * 질문 리스트 컴포넌트
  */
-const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) => {
+const Question = ({posts, fetchMorePosts, hasMore, onEditPost, onDeletePost}) => {
   const userId = useSelector((state) => state.auth.id);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
@@ -68,7 +68,7 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
     await Promise.all(
       uncachedPosts.map(async (post) => {
         try {
-          const res = await axios.get(`/v1/questions/${post.id}/answers`);
+          const res = await axios.get(`/v1/answers/${post.id}`);
           counts[post.id] = Array.isArray(res.data) ? res.data.length : 0;
         } catch {
           counts[post.id] = 0;
@@ -76,7 +76,7 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
       })
     );
 
-    setAnswerCounts((prev) => ({ ...prev, ...counts }));
+    setAnswerCounts((prev) => ({...prev, ...counts}));
   };
 
   // 게시글 변경 시 더보기 버튼 + 답변 수 처리
@@ -84,7 +84,7 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
     posts.forEach((post) => {
       const el = document.getElementById(`post-content-${post.id}`);
       if (el && el.scrollHeight > el.clientHeight) {
-        setShowMoreButton((prev) => ({ ...prev, [post.id]: true }));
+        setShowMoreButton((prev) => ({...prev, [post.id]: true}));
       }
     });
 
@@ -99,7 +99,7 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
         dataLength={posts.length}
         next={() => hasMore && fetchMorePosts(false)}
         hasMore={hasMore}
-        loader={<CircularProgress sx={{ display: "block", margin: "20px auto" }} />}
+        loader={<CircularProgress sx={{display: "block", margin: "20px auto"}}/>}
         endMessage={
           <Typography align="center" mb={3}>
             - 끝 -
@@ -107,38 +107,16 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
         }
       >
         {posts.map((post) => (
-          <Card key={post.id} sx={{ mb: 2, p: 1, boxShadow: "none", position: "relative" }}>
+          <Card key={post.id} sx={{mb: 2, p: 1, boxShadow: "none", position: "relative"}}>
             <CardContent>
-              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", mb: 0.5 }}>
+              <Typography variant="caption" color="text.secondary" sx={{fontWeight: "bold", mb: 0.5}}>
                 Question {post.id}
               </Typography>
 
-              <Typography
-                variant="h6"
-                color="primary.main"
-                sx={{
-                  mb: 1,
-                  display: 'flex',       // flex 컨테이너로 설정
-                  alignItems: 'center',  // 아이템들을 수직 중앙 정렬
-                }}
-              >
-                {post.author.id === 2 && (
-                  <SurveyCorpsIcon
-                    fontSize="large"   // 텍스트 크기에 맞춰 아이콘 크기 상속
-                    sx={{ mr: 0.5 }}     // 텍스트와 약간의 간격
-                  />
-                )}
-                {post.author.nickname}
-                <Typography
-                  component="span"
-                  color="text.secondary"
-                  sx={{ ml: 0.5 }}      // 닉네임과 #사이 간격
-                >
-                  #{post.author.id}
-                </Typography>
-              </Typography>
+              {/* 작성자(User) 정보(아이콘 + 닉네임 + 아이디) 컴포넌트 분리 */}
+              <UserInfo user={post.author}/>
 
-              <Typography variant="h6" sx={{ mb: 1 }}>{post.subject}</Typography>
+              <Typography variant="h6" sx={{mb: 1}}>{post.subject}</Typography>
 
               <Box
                 id={`post-content-${post.id}`}
@@ -148,31 +126,31 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
                   whiteSpace: "pre-wrap",
                 }}
               >
-                <Typography variant="body2" sx={{ mb: 1 }}>{post.content}</Typography>
+                <Typography variant="body2" sx={{mb: 1}}>{post.content}</Typography>
               </Box>
 
               {showMoreButton[post.id] && !expandedPosts.includes(post.id) && (
-                <Box sx={{ textAlign: "right", mb: 1 }}>
-                  <Button size="small" onClick={() => toggleExpand(post.id)} sx={{ textTransform: "none", p: 0 }}>
+                <Box sx={{textAlign: "right", mb: 1}}>
+                  <Button size="small" onClick={() => toggleExpand(post.id)} sx={{textTransform: "none", p: 0}}>
                     더보기
                   </Button>
                 </Box>
               )}
               {expandedPosts.includes(post.id) && (
-                <Box sx={{ textAlign: "right", mt: 1 }}>
-                  <Button size="small" onClick={() => toggleExpand(post.id)} sx={{ textTransform: "none", p: 0 }}>
+                <Box sx={{textAlign: "right", mt: 1}}>
+                  <Button size="small" onClick={() => toggleExpand(post.id)} sx={{textTransform: "none", p: 0}}>
                     간략히
                   </Button>
                 </Box>
               )}
 
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 1 }}>
+              <Box sx={{display: "flex", justifyContent: "space-between", alignItems: "center", mt: 1}}>
                 <Typography variant="caption" color="text.secondary">
                   작성일: {new Date(post.createdAt).toLocaleString()}
                 </Typography>
                 <IconButton size="small" onClick={() => handleAnswerClick(post.id)}>
                   <Badge badgeContent={answerCounts[post.id] ?? 0} color="primary" showZero>
-                    <ChatBubbleOutlineIcon fontSize="small" />
+                    <ChatBubbleOutlineIcon fontSize="small"/>
                   </Badge>
                 </IconButton>
               </Box>
@@ -181,10 +159,10 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
               {userId === post.author.id && (
                 <IconButton
                   size="small"
-                  sx={{ position: "absolute", top: 8, right: 8 }}
+                  sx={{position: "absolute", top: 8, right: 8}}
                   onClick={(e) => handleMenuClick(e, post)}
                 >
-                  <MoreVertIcon />
+                  <MoreVertIcon/>
                 </IconButton>
               )}
 

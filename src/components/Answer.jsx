@@ -16,7 +16,6 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "../api/axios";
-import SurveyCorpsIcon from "@/components/icons/SurveyCorpsIcon";
 
 const Answer = ({open, onClose, questionId, userId}) => {
   const accessToken = useSelector((state) => state.auth.accessToken); // ✅ 로그인 여부 확인
@@ -28,7 +27,7 @@ const Answer = ({open, onClose, questionId, userId}) => {
 
   const fetchAnswers = async () => {
     try {
-      const res = await axios.get(`/v1/questions/${questionId}/answers`);
+      const res = await axios.get(`/v1/answers/${questionId}`);
       setAnswers(res.data);
     } catch (err) {
       console.error("답변 목록 조회 실패:", err);
@@ -106,9 +105,6 @@ const Answer = ({open, onClose, questionId, userId}) => {
                   color="primary.main"
                   sx={{display: "flex", alignItems: "center"}}
                 >
-                  {answer.userId === 2 && (
-                    <SurveyCorpsIcon fontSize="medium" sx={{mr: 0.5}}/>
-                  )}
                   {answer.author || "익명"}
                   <Typography
                     component="span"
