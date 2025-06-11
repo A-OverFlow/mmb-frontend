@@ -20,11 +20,6 @@ import axios from "../api/axios";
 
 /**
  * 질문 리스트 컴포넌트
- * @param {Array} posts - 질문 데이터 배열
- * @param {Function} fetchMorePosts - 추가 데이터 로드 함수
- * @param {boolean} hasMore - 추가 로드 가능 여부
- * @param {Function} onEditPost - 수정 버튼 클릭 콜백
- * @param {Function} onDeletePost - 삭제 버튼 클릭 콜백
  */
 const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) => {
   const userId = useSelector((state) => state.auth.id);
@@ -36,7 +31,7 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
   const [answerOpen, setAnswerOpen] = useState(false);
   const [activeQuestionId, setActiveQuestionId] = useState(null);
 
-  // 메뉴 열기 핸들러
+  // 메뉴 열기
   const handleMenuClick = (e, post) => {
     setAnchorEl(e.currentTarget);
     setSelectedPost(post);
@@ -46,29 +41,31 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
     setSelectedPost(null);
   };
 
-  // 본문 확장/축소 토글
+  // 본문 확장/축소
   const toggleExpand = (postId) => {
     setExpandedPosts((prev) =>
       prev.includes(postId) ? prev.filter((id) => id !== postId) : [...prev, postId]
     );
   };
 
-  // 답변 모달 열기
+  // 답변 보기
   const handleAnswerClick = (postId) => {
     setActiveQuestionId(postId);
     setAnswerOpen(true);
   };
-  // 답변 모달 닫기
   const handleCloseAnswer = () => {
     setAnswerOpen(false);
     setActiveQuestionId(null);
   };
 
-  // 각 질문의 답변 수 조회
-  const fetchAnswerCounts = async () => {
+  // 새 게시글에 대해서만 답변 수 조회
+  const fetchAnswerCounts = async (newPosts) => {
+    const uncachedPosts = newPosts.filter((post) => !(post.id in answerCounts));
+    if (uncachedPosts.length === 0) return;
+
     const counts = {};
     await Promise.all(
-      posts.map(async (post) => {
+      uncachedPosts.map(async (post) => {
         try {
           const res = await axios.get(`/v1/questions/${post.id}/answers`);
           counts[post.id] = Array.isArray(res.data) ? res.data.length : 0;
@@ -77,10 +74,11 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
         }
       })
     );
-    setAnswerCounts(counts);
+
+    setAnswerCounts((prev) => ({ ...prev, ...counts }));
   };
 
-  // 포스트가 변경될 때마다 '더보기' 버튼 표시 여부 및 답변 수 동기화
+  // 게시글 변경 시 더보기 버튼 + 답변 수 처리
   useEffect(() => {
     posts.forEach((post) => {
       const el = document.getElementById(`post-content-${post.id}`);
@@ -88,8 +86,9 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
         setShowMoreButton((prev) => ({ ...prev, [post.id]: true }));
       }
     });
+
     if (posts.length > 0) {
-      fetchAnswerCounts();
+      fetchAnswerCounts(posts);
     }
   }, [posts]);
 
@@ -97,9 +96,7 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
     <div>
       <InfiniteScroll
         dataLength={posts.length}
-        next={() => {
-          if (hasMore) fetchMorePosts(false);
-        }}
+        next={() => hasMore && fetchMorePosts(false)}
         hasMore={hasMore}
         loader={<CircularProgress sx={{ display: "block", margin: "20px auto" }} />}
         endMessage={
@@ -114,6 +111,7 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
               <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", mb: 0.5 }}>
                 Question {post.id}
               </Typography>
+
               <Typography variant="body2" sx={{ mb: 1 }}>
                 <Typography component="span" color="primary.main" sx={{ mr: 0.5 }}>
                   {post.author.nickname}
@@ -122,17 +120,20 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
                   #{post.author.id}
                 </Typography>
               </Typography>
-              <Typography variant="h6" sx={{ mb: 1 }}>
-                {post.subject}
-              </Typography>
+
+              <Typography variant="h6" sx={{ mb: 1 }}>{post.subject}</Typography>
+
               <Box
                 id={`post-content-${post.id}`}
-                sx={{ maxHeight: expandedPosts.includes(post.id) ? "none" : 150, overflow: "hidden", whiteSpace: "pre-wrap" }}
+                sx={{
+                  maxHeight: expandedPosts.includes(post.id) ? "none" : 150,
+                  overflow: "hidden",
+                  whiteSpace: "pre-wrap",
+                }}
               >
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  {post.content}
-                </Typography>
+                <Typography variant="body2" sx={{ mb: 1 }}>{post.content}</Typography>
               </Box>
+
               {showMoreButton[post.id] && !expandedPosts.includes(post.id) && (
                 <Box sx={{ textAlign: "right", mb: 1 }}>
                   <Button size="small" onClick={() => toggleExpand(post.id)} sx={{ textTransform: "none", p: 0 }}>
@@ -147,6 +148,7 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
                   </Button>
                 </Box>
               )}
+
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 1 }}>
                 <Typography variant="caption" color="text.secondary">
                   작성일: {new Date(post.createdAt).toLocaleString()}
@@ -157,6 +159,8 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
                   </Badge>
                 </IconButton>
               </Box>
+
+              {/* 메뉴 (작성자 본인일 경우만 표시) */}
               {userId === post.author.id && (
                 <IconButton
                   size="small"
@@ -166,7 +170,12 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
                   <MoreVertIcon />
                 </IconButton>
               )}
-              <Menu anchorEl={anchorEl} open={Boolean(anchorEl) && selectedPost?.id === post.id} onClose={handleMenuClose}>
+
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl) && selectedPost?.id === post.id}
+                onClose={handleMenuClose}
+              >
                 <MenuItem
                   onClick={() => {
                     onEditPost(selectedPost.id);
@@ -190,7 +199,12 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
       </InfiniteScroll>
 
       {/* 답변 모달 */}
-      <Answer open={answerOpen} onClose={handleCloseAnswer} questionId={activeQuestionId} userId={userId} />
+      <Answer
+        open={answerOpen}
+        onClose={handleCloseAnswer}
+        questionId={activeQuestionId}
+        userId={userId}
+      />
     </div>
   );
 };
