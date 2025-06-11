@@ -105,6 +105,9 @@ const Answer = ({ open, onClose, questionId, userId }) => {
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography variant="subtitle2" color="primary.main">
                   {answer.author || "익명"}
+                  <Typography component="span" color="text.secondary">
+                    #{answer.userId}
+                  </Typography>
                   <Typography component="span" variant="caption" color="text.secondary">
                     {" "}({new Date(answer.createdAt).toLocaleString()})
                   </Typography>

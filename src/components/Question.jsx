@@ -113,7 +113,7 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
               </Typography>
 
               <Typography variant="body2" sx={{ mb: 1 }}>
-                <Typography component="span" color="primary.main" sx={{ mr: 0.5 }}>
+                <Typography component="span" color="primary.main">
                   {post.author.nickname}
                 </Typography>
                 <Typography component="span" color="text.secondary">
