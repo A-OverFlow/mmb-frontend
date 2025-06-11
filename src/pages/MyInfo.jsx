@@ -21,9 +21,6 @@ const MyInfo = () => {
   const navigate = useNavigate();
   const userId = useSelector((state) => state.auth.id);
 
-  // 현재 호스트를 가져옵니다 (예: https://mumulbo.com)
-  const host = window.location.origin;
-
   // 프로필 이미지 업로드용 상태
   const [selectedFile, setSelectedFile] = useState(null);
   // 서버에서 받아온 picture 경로 (예: images/profiles/xxx)
