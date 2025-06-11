@@ -1,5 +1,15 @@
 import React, {useEffect, useState} from "react";
-import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography,} from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  TextField,
+  Typography,
+} from "@mui/material";
 import axios from "../api/axios.js";
 import {useDispatch, useSelector} from "react-redux";
 import {logout, setNickname} from "../slices/authSlice.js";
@@ -158,25 +168,32 @@ const MyInfo = () => {
         내 정보
       </Typography>
 
+
       <Box sx={{maxWidth: 600, mx: "auto", textAlign: "left", p: 2}}>
-        {/* 1) 프로필 이미지 출력 (ID 위) */}
-        {profilePicture && (
-          <Box display="flex" justifyContent="center" mb={2}>
-            <img
-              src={`${import.meta.env.VITE_BACKEND_API_HOST}/${profilePicture}`}
-              alt="프로필 사진"
-              style={{
-                width: 100,
-                height: 100,
-                borderRadius: "50%",
-                objectFit: "cover",
-              }}
-            />
-          </Box>
-        )}
+
+        <Box display="flex" alignItems="flex-end" gap={1} mb={1}>
+          <Typography variant="body2" color="text.secondary">
+            프로필 사진
+          </Typography>
+          {/* 1) 프로필 이미지 출력 */}
+          {profilePicture && (
+            <Box display="flex" justifyContent="center">
+              <img
+                src={`${import.meta.env.VITE_BACKEND_API_HOST}/${profilePicture}`}
+                alt="프로필 사진"
+                style={{
+                  width: 100,
+                  height: 100,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                }}
+              />
+            </Box>
+          )}
+        </Box>
 
         {/* 2) 프로필 이미지 업로드 섹션 */}
-        <Box display="flex" alignItems="center" gap={1} mb={2}>
+        <Box display="flex" flexDirection="column" alignItems="flex-end" gap={1} mb={2}>
           <input
             accept="image/*"
             id="profile-upload"
@@ -185,46 +202,48 @@ const MyInfo = () => {
             onChange={handleFileChange}
           />
           <label htmlFor="profile-upload">
-            <Button variant="contained" component="span">
+            <Button variant="text" component="span">
               이미지 선택
             </Button>
           </label>
           {selectedFile && (
             <>
               <Typography variant="body2">{selectedFile.name}</Typography>
-              <Button variant="contained" onClick={handleImageUpload}>
+              <Button variant="text" onClick={handleImageUpload}>
                 업로드
               </Button>
             </>
           )}
         </Box>
 
+        <Divider sx={{ my: 2 }} />
+
         {/* 3) 회원 기본 정보 */}
-        <Box display="flex" gap={1} mb={1}>
+        <Box display="flex" alignItems="flex-end" gap={1} mb={1}>
           <Typography variant="body2" color="text.secondary">
             ID
           </Typography>
           <Typography variant="body1">{userId}</Typography>
         </Box>
-        <Box display="flex" gap={1} mb={1}>
+        <Box display="flex" alignItems="flex-end" gap={1} mb={1}>
           <Typography variant="body2" color="text.secondary">
             이름
           </Typography>
           <Typography variant="body1">{name}</Typography>
         </Box>
-        <Box display="flex" gap={1} mb={1}>
+        <Box display="flex" alignItems="flex-end" gap={1} mb={1}>
           <Typography variant="body2" color="text.secondary">
             닉네임
           </Typography>
           <Typography variant="body1">{nickname}</Typography>
         </Box>
-        <Box display="flex" gap={1} mb={1}>
+        <Box display="flex" alignItems="flex-end" gap={1} mb={1}>
           <Typography variant="body2" color="text.secondary">
             이메일
           </Typography>
           <Typography variant="body1">{email}</Typography>
         </Box>
-        <Box display="flex" gap={1} mb={1}>
+        <Box display="flex" alignItems="flex-end" gap={1} mb={1}>
           <Typography variant="body2" color="text.secondary">
             웹사이트
           </Typography>
@@ -249,11 +268,17 @@ const MyInfo = () => {
           </Typography>
         </Box>
 
-        {/* 5) 수정 / 탈퇴 버튼 */}
+        {/* 5) 수정 버튼 */}
         <Box sx={{display: "flex", justifyContent: "flex-end", gap: 2, mt: 3}}>
           <Button variant="text" color="primary" onClick={() => setIsEditing(true)}>
             사용자 정보 수정
           </Button>
+        </Box>
+
+        <Divider sx={{ my: 2 }} />
+
+        {/* 6) 탈퇴 버튼 */}
+        <Box sx={{display: "flex", justifyContent: "flex-end", gap: 2, mt: 3}}>
           <Button variant="text" color="error" onClick={() => setIsDialogOpen(true)}>
             회원 탈퇴
           </Button>
