@@ -15,6 +15,7 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "../api/axios";
+import SurveyCorpsIcon from '@/components/icons/SurveyCorpsIcon';
 
 const Answer = ({ open, onClose, questionId, userId }) => {
   const [answers, setAnswers] = useState([]);
@@ -103,13 +104,35 @@ const Answer = ({ open, onClose, questionId, userId }) => {
               sx={{ flexDirection: "column", alignItems: "stretch" }}
             >
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography variant="subtitle2" color="primary.main">
-                  {answer.author || "익명"}
-                  <Typography component="span" color="text.secondary">
+                <Typography
+                  variant="subtitle2"
+                  color="primary.main"
+                  sx={{
+                    display: 'flex',       // flex 컨테이너로 설정
+                    alignItems: 'center',  // 자식 요소들을 수직 중앙 정렬
+                  }}
+                >
+                  {answer.userId === 2 && (
+                    <SurveyCorpsIcon
+                      fontSize="medium"   // subtitle2 텍스트 크기에 맞춤
+                      sx={{ mr: 0.5 }}     // 아이콘과 닉네임 사이 여백
+                    />
+                  )}
+                  {answer.author || '익명'}
+                  <Typography
+                    component="span"
+                    color="text.secondary"
+                    sx={{ ml: 0.5 }}      // 닉네임과 #사이 간격
+                  >
                     #{answer.userId}
                   </Typography>
-                  <Typography component="span" variant="caption" color="text.secondary">
-                    {" "}({new Date(answer.createdAt).toLocaleString()})
+                  <Typography
+                    component="span"
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ ml: 0.5 }}      // 해시태그와 날짜 사이 간격
+                  >
+                    ({new Date(answer.createdAt).toLocaleString()})
                   </Typography>
                 </Typography>
 

@@ -17,6 +17,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import Answer from "./Answer";
 import axios from "../api/axios";
+import SurveyCorpsIcon from '@/components/icons/SurveyCorpsIcon';
 
 /**
  * 질문 리스트 컴포넌트
@@ -112,11 +113,27 @@ const Question = ({ posts, fetchMorePosts, hasMore, onEditPost, onDeletePost }) 
                 Question {post.id}
               </Typography>
 
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                <Typography component="span" color="primary.main">
-                  {post.author.nickname}
-                </Typography>
-                <Typography component="span" color="text.secondary">
+              <Typography
+                variant="h6"
+                color="primary.main"
+                sx={{
+                  mb: 1,
+                  display: 'flex',       // flex 컨테이너로 설정
+                  alignItems: 'center',  // 아이템들을 수직 중앙 정렬
+                }}
+              >
+                {post.author.id === 2 && (
+                  <SurveyCorpsIcon
+                    fontSize="large"   // 텍스트 크기에 맞춰 아이콘 크기 상속
+                    sx={{ mr: 0.5 }}     // 텍스트와 약간의 간격
+                  />
+                )}
+                {post.author.nickname}
+                <Typography
+                  component="span"
+                  color="text.secondary"
+                  sx={{ ml: 0.5 }}      // 닉네임과 #사이 간격
+                >
                   #{post.author.id}
                 </Typography>
               </Typography>
