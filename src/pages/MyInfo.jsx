@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from "react";
-import {
-  Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent,
-  DialogTitle, Divider, TextField, Typography
-} from "@mui/material";
+import React, {useEffect, useState} from "react";
+import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography} from "@mui/material";
 import axios from "../api/axios.js";
-import { useDispatch, useSelector } from "react-redux";
-import { logout, setNickname } from "../slices/authSlice.js";
-import { useNavigate } from "react-router-dom";
-import { alert } from "../slices/alertSlice.js";
+import {useDispatch, useSelector} from "react-redux";
+import {logout, setNickname} from "../slices/authSlice.js";
+import {useNavigate} from "react-router-dom";
+import {alert} from "../slices/alertSlice.js";
 
 const MyInfo = () => {
   const dispatch = useDispatch();
@@ -34,7 +31,7 @@ const MyInfo = () => {
     const fetchMyInfo = async () => {
       try {
         const response = await axios.get("/v1/members/me/profile");
-        const { name, nickname, email, introduction, website } = response.data;
+        const {name, nickname, email, introduction, website} = response.data;
 
         setUserName(name);
         setUserNickname(nickname);
@@ -62,7 +59,14 @@ const MyInfo = () => {
       return;
     }
 
-    if (!isValidUrl(newWebsite)) {
+    let formattedWebsite = newWebsite.trim();
+
+    // 프로토콜 자동 추가
+    if (formattedWebsite && !/^https?:\/\//i.test(formattedWebsite)) {
+      formattedWebsite = `https://${formattedWebsite}`;
+    }
+
+    if (!isValidUrl(formattedWebsite)) {
       dispatch(alert.error("유효한 웹사이트 주소를 입력해주세요."));
       return;
     }
@@ -71,12 +75,12 @@ const MyInfo = () => {
       await axios.patch("/v1/members/me/profile/info", {
         nickname: newNickname,
         introduction: newIntroduction,
-        website: newWebsite,
+        website: formattedWebsite,
       });
 
       setUserNickname(newNickname);
       setUserIntroduction(newIntroduction);
-      setUserWebsite(newWebsite);
+      setUserWebsite(formattedWebsite);
 
       dispatch(setNickname(newNickname));
       dispatch(alert.success("사용자 정보가 성공적으로 변경되었습니다."));
@@ -120,70 +124,70 @@ const MyInfo = () => {
     <Box textAlign="center" mt={5}>
       <Typography variant="h3" gutterBottom>내 정보</Typography>
 
-      <Box sx={{ maxWidth: 600, margin: "0 auto", textAlign: "left", padding: 2 }}>
+      <Box sx={{maxWidth: 600, margin: "0 auto", textAlign: "left", padding: 2}}>
 
-        <Typography variant="body2" color="text.secondary" gutterBottom>
-          회원 ID
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          {userId}
-        </Typography>
+        {/* 회원 ID */}
+        <Box display="flex" gap={1} mb={1}>
+          <Typography variant="body2" color="text.secondary">ID</Typography>
+          <Typography variant="body1">{userId}</Typography>
+        </Box>
 
-        <Typography variant="body2" color="text.secondary" gutterBottom>
-          이름
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          {name}
-        </Typography>
+        {/* 이름 */}
+        <Box display="flex" gap={1} mb={1}>
+          <Typography variant="body2" color="text.secondary">이름</Typography>
+          <Typography variant="body1">{name}</Typography>
+        </Box>
 
-        <Typography variant="body2" color="text.secondary" gutterBottom>
-          닉네임
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          {nickname}
-        </Typography>
+        {/* 닉네임 */}
+        <Box display="flex" gap={1} mb={1}>
+          <Typography variant="body2" color="text.secondary">닉네임</Typography>
+          <Typography variant="body1">{nickname}</Typography>
+        </Box>
 
-        <Typography variant="body2" color="text.secondary" gutterBottom>
-          이메일
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          {email}
-        </Typography>
+        {/* 이메일 */}
+        <Box display="flex" gap={1} mb={1}>
+          <Typography variant="body2" color="text.secondary">이메일</Typography>
+          <Typography variant="body1">{email}</Typography>
+        </Box>
 
-        <Typography variant="body2" color="text.secondary" gutterBottom>
-          자기소개
-        </Typography>
-        <Typography
-          variant="body1"
-          gutterBottom
-          sx={{ whiteSpace: "pre-wrap" }}
-        >
-          {introduction || "없음"}
-        </Typography>
+        {/* 웹사이트 */}
+        <Box display="flex" gap={1} mb={1}>
+          <Typography variant="body2" color="text.secondary">웹 사이트</Typography>
+          <Typography variant="body1">
+            {website ? (
+              <a href={website} target="_blank" rel="noopener noreferrer">{website}</a>
+            ) : (
+              "없음"
+            )}
+          </Typography>
+        </Box>
 
-        <Typography variant="body2" color="text.secondary" gutterBottom>
-          웹사이트
-        </Typography>
-        <Typography variant="body1">
-          {website ? (
-            <a href={website} target="_blank" rel="noopener noreferrer">{website}</a>
-          ) : (
-            "없음"
-          )}
-        </Typography>
-      </Box>
+        {/* 자기소개 (두 줄 출력 유지, 가장 아래) */}
+        <Box mt={2}>
+          <Typography variant="body2" color="text.secondary">자기소개</Typography>
+          <Typography variant="body1" sx={{whiteSpace: "pre-wrap"}}>
+            {introduction || "없음"}
+          </Typography>
+        </Box>
 
+        {/* 수정 / 탈퇴 버튼 - 텍스트 버튼으로 우측에 한 줄 배치 */}
+        <Box sx={{display: "flex", justifyContent: "flex-end", gap: 2, mt: 3}}>
+          <Button
+            variant="text"
+            color="primary"
+            onClick={() => setIsEditing(true)}
+          >
+            사용자 정보 수정
+          </Button>
+          <Button
+            variant="text"
+            color="error"
+            onClick={() => setIsDialogOpen(true)}
+          >
+            회원 탈퇴
+          </Button>
+        </Box>
 
-      {/* 수정 버튼 */}
-      <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={() => setIsEditing(true)}
-          sx={{ width: "200px", textTransform: "none" }}
-        >
-          사용자 정보 수정
-        </Button>
       </Box>
 
       {/* 사용자 정보 수정 다이얼로그 */}
@@ -196,24 +200,10 @@ const MyInfo = () => {
             onChange={(e) => setNewNickname(e.target.value)}
             fullWidth
             margin="normal"
-            inputProps={{ maxLength: 10 }}
           />
           <Typography variant="body2" color="textSecondary">
             닉네임은 2~10자의 공백 없는 문자열이어야 합니다.
           </Typography>
-
-          <TextField
-            label="자기소개"
-            value={newIntroduction}
-            onChange={(e) => setNewIntroduction(e.target.value)}
-            fullWidth
-            multiline
-            margin="normal"
-            inputProps={{ maxLength: 250 }}
-            helperText={`${newIntroduction.length}/250자`}
-            FormHelperTextProps={{ sx: { textAlign: "right" } }}
-          />
-
 
           <TextField
             label="웹사이트"
@@ -223,24 +213,25 @@ const MyInfo = () => {
             margin="normal"
             placeholder="https://example.com"
           />
+
+          <TextField
+            label="자기소개"
+            value={newIntroduction}
+            onChange={(e) => setNewIntroduction(e.target.value)}
+            fullWidth
+            multiline
+            margin="normal"
+            inputProps={{maxLength: 250}}
+            helperText={`${newIntroduction.length}/250자`}
+            FormHelperTextProps={{sx: {textAlign: "right"}}}
+          />
         </DialogContent>
+
         <DialogActions>
           <Button onClick={handleEditCancel}>취소</Button>
           <Button variant="contained" onClick={handleInfoUpdate}>저장</Button>
         </DialogActions>
       </Dialog>
-
-      {/* 회원 탈퇴 */}
-      <Box sx={{ display: "flex", justifyContent: "center", gap: 2, marginTop: 2 }}>
-        <Button
-          variant="outlined"
-          color="error"
-          onClick={() => setIsDialogOpen(true)}
-          sx={{ width: "140px" }}
-        >
-          회원 탈퇴
-        </Button>
-      </Box>
 
       <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
         <DialogTitle>회원 탈퇴</DialogTitle>
