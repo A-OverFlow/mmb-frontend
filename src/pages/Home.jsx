@@ -31,7 +31,7 @@ const Home = () => {
         .then(res => setQuestionCount(res.data.count))
         .catch(() => setQuestionError("질문 수를 불러오지 못했습니다."));
       const answerPromise = axios.get("/v1/answers/count")
-        .then(res => setAnswerCount(res.data.count))
+        .then(res => setAnswerCount(res.data.answerCount))
         .catch(() => setAnswerError("답변 수를 불러오지 못했습니다."));
 
       // 2) 최근 답변 조회
