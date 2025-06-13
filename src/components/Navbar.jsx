@@ -132,7 +132,7 @@ const Navbar = () => {
               sx={{cursor: 'pointer'}}
               onClick={handleLogin}
             >
-              Login
+              로그인
             </Typography>
           )}
 

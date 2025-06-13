@@ -122,8 +122,8 @@ const Login = () => {
       </Backdrop>
 
       <Box textAlign="center" mt={5}>
-        <Typography variant="h3" gutterBottom>
-          로그인 페이지
+        <Typography mb={5} variant="h5" gutterBottom>
+          구글로 1초만에 로그인하기 🚀
         </Typography>
         <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2}}>
           {/* Google 로그인 버튼이 여기에 렌더링됩니다 */}

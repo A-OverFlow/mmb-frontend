@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Box, Switch, Typography } from "@mui/material";
-import { useSelector } from "react-redux";
+import React, {useEffect, useState} from "react";
+import {Box, Switch, Typography} from "@mui/material";
+import {useSelector} from "react-redux";
 import axios from "../api/axios";
 import PostInput from "../components/PostInput";
 import Question from "../components/Question";
@@ -36,7 +36,7 @@ const QnA = () => {
 
       const url = `/v1/questions?${params.toString()}`;
       const response = await axios.get(url);
-      const { questions, hasNext, lastId: newLastId } = response.data;
+      const {questions, hasNext, lastId: newLastId} = response.data;
 
       // 기존 게시글과 병합 후 중복 제거
       setPosts((prev) => {
@@ -103,17 +103,16 @@ const QnA = () => {
   return (
     <>
       {/* 글쓰기 폼 (로그인 시만 표시) */}
-      {accessToken && (
-        <PostInput
-          onSubmit={handlePostSubmit}
-          editingPost={editingPost}
-          onCancelEdit={handleCancelEdit}
-        />
-      )}
+      <PostInput
+        onSubmit={handlePostSubmit}
+        editingPost={editingPost}
+        onCancelEdit={handleCancelEdit}
+        isLoggedIn={!!accessToken}
+      />
 
       {/* 내가 쓴 글만 보기 토글 */}
       {accessToken && (
-        <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 1, mt: 2, mb: 2, px: 2 }}>
+        <Box sx={{display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 1, mt: 2, mb: 2, px: 2}}>
           <Typography variant="body2" color="text.secondary">
             내가 쓴 글만 보기
           </Typography>

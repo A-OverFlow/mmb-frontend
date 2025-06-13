@@ -165,7 +165,7 @@ const Answer = ({open, onClose, questionId, questionAuthorId, userId, onAnswerCh
           />
         ) : (
           <Typography variant="body2" color="text.secondary" sx={{mt: 2, fontStyle: "italic", textAlign: "center"}}>
-            로그인 후 답변을 작성할 수 있습니다.
+            지금 로그인하고 답변을 작성해 보세요.
           </Typography>
         )}
       </DialogContent>
