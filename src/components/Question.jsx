@@ -79,6 +79,19 @@ const Question = ({posts, fetchMorePosts, hasMore, onEditPost, onDeletePost}) =>
     setAnswerCounts((prev) => ({...prev, ...counts}));
   };
 
+  const handleAnswerCountUpdate = async (questionId) => {
+    try {
+      const res = await axios.get(`/v1/answers/${questionId}`);
+      const updatedCount = Array.isArray(res.data) ? res.data.length : 0;
+      setAnswerCounts((prev) => ({
+        ...prev,
+        [questionId]: updatedCount,
+      }));
+    } catch (error) {
+      console.error("답변 수 업데이트 실패:", error);
+    }
+  };
+
   // 게시글 변경 시 더보기 버튼 + 답변 수 처리
   useEffect(() => {
     posts.forEach((post) => {
@@ -109,10 +122,6 @@ const Question = ({posts, fetchMorePosts, hasMore, onEditPost, onDeletePost}) =>
         {posts.map((post) => (
           <Card key={post.id} sx={{mb: 2, p: 1, boxShadow: "none", position: "relative"}}>
             <CardContent>
-              <Typography variant="caption" color="text.secondary" sx={{fontWeight: "bold", mb: 0.5}}>
-                Question {post.id}
-              </Typography>
-
               {/* 작성자(User) 정보(아이콘 + 닉네임 + 아이디) 컴포넌트 분리 */}
               <UserInfo user={post.author}/>
 
@@ -199,6 +208,7 @@ const Question = ({posts, fetchMorePosts, hasMore, onEditPost, onDeletePost}) =>
         onClose={handleCloseAnswer}
         questionId={activeQuestionId}
         userId={userId}
+        onAnswerChanged={handleAnswerCountUpdate}
       />
     </div>
   );

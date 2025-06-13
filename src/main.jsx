@@ -1,41 +1,45 @@
-import {StrictMode} from 'react'
-import {createRoot} from 'react-dom/client'
-import App from './App.jsx'
+import {StrictMode} from 'react';
+import {createRoot} from 'react-dom/client';
+import App from './App.jsx';
 import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
 
-// MUI 테마 생성
+// 안랩 로고 스타일 기반 MUI 테마
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#009688", // Teal
-      light: "#52c7b8",
-      dark: "#00675b",
+      main: "#007BC8",     // AhnLab Blue (메인 로고색)
+      light: "#4DA8E2",    // 밝은 하늘색 계열
+      dark: "#005A9C",     // 좀 더 진한 블루 (로고 그림자색 느낌)
+      contrastText: "#ffffff",
     },
     secondary: {
-      main: "#607d8b", // Blue Grey
-      light: "#8eacbb",
-      dark: "#34515e",
+      main: "#7F8FA6",      // 푸른 회색 느낌 (보조색)
+      light: "#B0BEC5",
+      dark: "#546E7A",
+      contrastText: "#ffffff",
     },
     background: {
-      default: "#fafafa", // Extra Light Grey
-      paper: "#ffffff", // White
+      default: "#f4f6f8",   // 매우 연한 회색 (신뢰감 + 현대적)
+      paper: "#ffffff",     // 기본 화이트
     },
     text: {
-      primary: "#212121",
-      secondary: "#757575",
+      primary: "#1A1A1A",   // 다크 그레이
+      secondary: "#5C6B73", // 중간 회색
     },
   },
   typography: {
-    fontFamily: '"Nanum Gothic", sans-serif', // Nanum Gothic 적용
+    // fontFamily: '"Nanum Gothic", sans-serif', // 공식 폰트 유사 계열
+    // fontFamily: '"Noto Sans KR", sans-serif'
+    fontFamily: '"Gowun Dodum", sans-serif'
+
   },
 });
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
-      {/* body의 margin 값을 제거하기 위해 설정*/}
-      <CssBaseline/>
-      <App/>
+      <CssBaseline />
+      <App />
     </ThemeProvider>
   </StrictMode>,
-)
+);

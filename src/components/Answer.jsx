@@ -17,8 +17,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "../api/axios";
 
-const Answer = ({open, onClose, questionId, userId}) => {
-  const accessToken = useSelector((state) => state.auth.accessToken); // ✅ 로그인 여부 확인
+const Answer = ({open, onClose, questionId, userId, onAnswerChanged }) => {
+  const accessToken = useSelector((state) => state.auth.accessToken);
 
   const [answers, setAnswers] = useState([]);
   const [newAnswer, setNewAnswer] = useState("");
@@ -44,6 +44,7 @@ const Answer = ({open, onClose, questionId, userId}) => {
       });
       setNewAnswer("");
       fetchAnswers();
+      onAnswerChanged?.(questionId); // ✅ 등록 후
     } catch (err) {
       console.error("답변 등록 실패:", err);
     }
@@ -53,6 +54,7 @@ const Answer = ({open, onClose, questionId, userId}) => {
     try {
       await axios.delete(`/v1/answers/${answerId}`);
       fetchAnswers();
+      onAnswerChanged?.(questionId); // ✅ 삭제 후
     } catch (err) {
       console.error("답변 삭제 실패:", err);
     }
@@ -183,7 +185,6 @@ const Answer = ({open, onClose, questionId, userId}) => {
           ))}
         </List>
 
-        {/* ✅ 로그인한 경우에만 입력창 표시, 아니면 안내문구 */}
         {accessToken ? (
           <TextField
             fullWidth
