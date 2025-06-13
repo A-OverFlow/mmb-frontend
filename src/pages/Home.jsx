@@ -58,11 +58,11 @@ const Home = () => {
       <Box mb={5}>
         {userNickname ? (
           <Typography variant="h5" gutterBottom>
-            {userNickname}님, 어서오세요!
+            {userNickname}님, 무엇이든 물어보세요!
           </Typography>
         ) : (
           <Typography variant="h5" color="text.secondary" gutterBottom>
-            로그인하지 않으셨습니다.
+            지금 로그인하고, 무엇이든 물어보세요!
           </Typography>
         )}
       </Box>
@@ -155,7 +155,7 @@ const Home = () => {
       </Box>
 
       {/* 하단: 베타 안내 문구 (가운데 정렬) */}
-      <Box mt={8} px={2} display="flex" justifyContent="center">
+      <Box mt={8} mb={10} px={2} display="flex" justifyContent="center">
         <Alert
           severity="info"
           variant="outlined"
@@ -166,7 +166,7 @@ const Home = () => {
           - 사용 중 오류나 비정상 동작이 발생할 수 있습니다.<br/>
           - 저장된 데이터는 정식 버전 이행 시 초기화될 수 있습니다.<br/>
           - 민감한 정보 입력은 삼가주시고, 피드백은 언제든 환영합니다.<br/>
-          안정된 서비스를 제공하기 위해 최선을 다하겠습니다. 감사합니다.
+          - 안정된 서비스를 제공하기 위해 최선을 다하겠습니다. 감사합니다.
         </Alert>
       </Box>
     </Box>

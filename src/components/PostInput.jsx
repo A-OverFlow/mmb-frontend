@@ -70,14 +70,14 @@ const PostInput = ({onSubmit, editingPost, onCancelEdit}) => {
       {!expanded && !editingPost && (
         <Box style={{display: "flex", justifyContent: "flex-end"}}>
           <Button variant="contained" onClick={toggleExpanded}>
-            게시글 작성
+            무엇이든 물어보기
           </Button>
         </Box>
       )}
 
       <Collapse in={expanded}>
         <Typography variant="h6" gutterBottom style={{marginTop: "16px"}}>
-          {editingPost ? "게시글 수정" : "게시글 작성"}
+          {editingPost ? "질문 수정" : "질문 작성"}
         </Typography>
         <Box component="form" noValidate autoComplete="off">
           <TextField

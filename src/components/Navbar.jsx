@@ -90,6 +90,17 @@ const Navbar = () => {
     <Box sx={{flexGrow: 1}}>
       <AppBar position="static" sx={{boxShadow: 'none'}}>
         <Toolbar>
+          <img
+            src="/android-chrome-192x192.png"
+            alt="무물보 로고"
+            style={{
+              height: 36,
+              width: 36,
+              marginRight: 8,
+              cursor: 'pointer'
+            }}
+            onClick={handleGoHome}
+          />
           <Typography
             variant="h6"
             component="div"
