@@ -1,3 +1,4 @@
+// Answer.jsx
 import React, {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import {
@@ -17,7 +18,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "../api/axios";
 
-const Answer = ({open, onClose, questionId, userId, onAnswerChanged }) => {
+const Answer = ({open, onClose, questionId, questionAuthorId, userId, onAnswerChanged}) => {
   const accessToken = useSelector((state) => state.auth.accessToken);
 
   const [answers, setAnswers] = useState([]);
@@ -34,17 +35,23 @@ const Answer = ({open, onClose, questionId, userId, onAnswerChanged }) => {
     }
   };
 
+  // 모달 열 때마다 입력/편집 상태 초기화 및 답변 로드
+  useEffect(() => {
+    if (open) {
+      fetchAnswers();
+      setNewAnswer("");
+      setEditingAnswerId(null);
+      setEditingContent("");
+    }
+  }, [open]);
+
   const handleSubmit = async () => {
     if (!newAnswer.trim()) return;
-
     try {
-      await axios.post("/v1/answers", {
-        questionId,
-        answer: newAnswer,
-      });
+      await axios.post("/v1/answers", {questionId, answer: newAnswer});
       setNewAnswer("");
       fetchAnswers();
-      onAnswerChanged?.(questionId); // ✅ 등록 후
+      onAnswerChanged?.(questionId);
     } catch (err) {
       console.error("답변 등록 실패:", err);
     }
@@ -54,7 +61,7 @@ const Answer = ({open, onClose, questionId, userId, onAnswerChanged }) => {
     try {
       await axios.delete(`/v1/answers/${answerId}`);
       fetchAnswers();
-      onAnswerChanged?.(questionId); // ✅ 삭제 후
+      onAnswerChanged?.(questionId);
     } catch (err) {
       console.error("답변 삭제 실패:", err);
     }
@@ -62,9 +69,7 @@ const Answer = ({open, onClose, questionId, userId, onAnswerChanged }) => {
 
   const handleUpdate = async () => {
     try {
-      await axios.patch(`/v1/answers/${editingAnswerId}`, {
-        answer: editingContent,
-      });
+      await axios.patch(`/v1/answers/${editingAnswerId}`, {answer: editingContent});
       setEditingAnswerId(null);
       setEditingContent("");
       fetchAnswers();
@@ -77,73 +82,50 @@ const Answer = ({open, onClose, questionId, userId, onAnswerChanged }) => {
     setEditingAnswerId(answer.answerId);
     setEditingContent(answer.answer);
   };
-
   const handleCancelEdit = () => {
     setEditingAnswerId(null);
     setEditingContent("");
   };
-
-  useEffect(() => {
-    if (open) fetchAnswers();
-  }, [open]);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>답변</DialogTitle>
       <DialogContent dividers>
         <List>
-          {answers.length === 0 && (
-            <Typography color="text.secondary">아직 답변이 없습니다.</Typography>
-          )}
-          {answers.map((answer) => (
-            <ListItem
-              key={answer.answerId}
-              alignItems="flex-start"
-              sx={{flexDirection: "column", alignItems: "stretch"}}
-            >
+          {answers.length === 0 && <Typography color="text.secondary">아직 답변이 없습니다.</Typography>}
+          {answers.map((ans) => (
+            <ListItem key={ans.answerId} sx={{flexDirection: "column", alignItems: "stretch"}}>
               <Box sx={{display: "flex", justifyContent: "space-between"}}>
                 <Typography
                   variant="subtitle2"
                   color="primary.main"
-                  sx={{display: "flex", alignItems: "center"}}
+                  sx={
+                    ans.userId === questionAuthorId
+                      ? { fontWeight: "bold" }
+                      : {}
+                  }
                 >
-                  {answer.author || "익명"}
-                  <Typography
-                    component="span"
-                    color="text.secondary"
-                    sx={{ml: 0.5}}
-                  >
-                    #{answer.userId}
-                  </Typography>
-                  <Typography
-                    component="span"
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ml: 0.5}}
-                  >
-                    ({new Date(answer.createdAt).toLocaleString()})
+                  {/* 질문자 본인 답변인 경우 앞에 '작성자 ' 붙이기 */}
+                  {ans.userId === questionAuthorId && '<작성자> '}
+                  {ans.author || "익명"}{" "}
+                  <Typography component="span" variant="subtitle2">
+                    #{ans.userId}
                   </Typography>
                 </Typography>
 
-                {answer.userId === userId && (
+                {ans.userId === userId && (
                   <Box>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleStartEdit(answer)}
-                    >
+                    <IconButton size="small" onClick={() => handleStartEdit(ans)}>
                       <EditIcon fontSize="small"/>
                     </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleDelete(answer.answerId)}
-                    >
+                    <IconButton size="small" onClick={() => handleDelete(ans.answerId)}>
                       <DeleteIcon fontSize="small"/>
                     </IconButton>
                   </Box>
                 )}
               </Box>
 
-              {editingAnswerId === answer.answerId ? (
+              {editingAnswerId === ans.answerId ? (
                 <>
                   <TextField
                     fullWidth
@@ -153,34 +135,20 @@ const Answer = ({open, onClose, questionId, userId, onAnswerChanged }) => {
                     onChange={(e) => setEditingContent(e.target.value)}
                     sx={{mt: 1}}
                   />
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      gap: 1,
-                      mt: 1,
-                    }}
-                  >
-                    <Button size="small" onClick={handleCancelEdit}>
-                      취소
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="contained"
-                      onClick={handleUpdate}
-                    >
-                      수정
-                    </Button>
+                  <Box sx={{display: "flex", justifyContent: "flex-end", gap: 1, mt: 1}}>
+                    <Button size="small" onClick={handleCancelEdit}>취소</Button>
+                    <Button size="small" variant="contained" onClick={handleUpdate}>수정</Button>
                   </Box>
                 </>
               ) : (
-                <Typography
-                  variant="body2"
-                  sx={{whiteSpace: "pre-wrap", mt: 1}}
-                >
-                  {answer.answer}
+                <Typography variant="body2" sx={{whiteSpace: "pre-wrap", mt: 1}}>
+                  {ans.answer}
                 </Typography>
               )}
+
+              <Typography variant="caption" color="text.secondary" sx={{mt: 0.5}}>
+                작성일: {new Date(ans.createdAt).toLocaleString()}
+              </Typography>
             </ListItem>
           ))}
         </List>
@@ -193,14 +161,10 @@ const Answer = ({open, onClose, questionId, userId, onAnswerChanged }) => {
             minRows={3}
             value={newAnswer}
             onChange={(e) => setNewAnswer(e.target.value)}
-            sx={{marginTop: 2}}
+            sx={{mt: 2}}
           />
         ) : (
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{mt: 2, fontStyle: "italic", textAlign: "center"}}
-          >
+          <Typography variant="body2" color="text.secondary" sx={{mt: 2, fontStyle: "italic", textAlign: "center"}}>
             로그인 후 답변을 작성할 수 있습니다.
           </Typography>
         )}
@@ -209,11 +173,7 @@ const Answer = ({open, onClose, questionId, userId, onAnswerChanged }) => {
       <DialogActions>
         <Button onClick={onClose}>닫기</Button>
         {accessToken && (
-          <Button
-            onClick={handleSubmit}
-            variant="contained"
-            disabled={!newAnswer.trim()}
-          >
+          <Button onClick={handleSubmit} variant="contained" disabled={!newAnswer.trim()}>
             등록
           </Button>
         )}
