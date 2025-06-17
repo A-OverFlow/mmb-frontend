@@ -142,19 +142,44 @@ const Home = () => {
       <Box
         mt={4}
         px={2}
-        sx={{ width: '100%', maxWidth: 960, mx: 'auto', textAlign: 'left' }}
+        sx={{ width: "100%", maxWidth: 960, mx: "auto", textAlign: "left" }}
       >
-        <Typography variant="h6" gutterBottom>최근 답변</Typography>
+        <Typography variant="h6" gutterBottom>
+          최근 답변
+        </Typography>
+
         {loading ? (
           <CircularProgress size={24} />
         ) : recentError ? (
           <Typography color="error">{recentError}</Typography>
         ) : (
-          recentAnswers.map(ans => (
-            <Box key={ans.answerId} mb={2} p={2} border={1} borderColor="divider" borderRadius={1}>
-              <Typography variant="subtitle1">{ans.questionTitle}</Typography>
-              <Typography variant="body2">{ans.answer}</Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+          recentAnswers.map((ans) => (
+            <Box
+              key={ans.answerId}
+              mb={2}
+              p={2}
+              border={1}
+              borderColor="divider"
+              borderRadius={1}
+              sx={{ cursor: "pointer", backgroundColor: '#fff' }}
+              onClick={() => navigate(`/qna/${ans.questionId}`)}
+            >
+              {/* 작성자 및 유저ID */}
+              <Typography variant="subtitle2" color="primary.main">
+                {ans.author || "알 수 없음"}#{ans.userId}
+              </Typography>
+
+              {/* 답변 내용 */}
+              <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", mt: 1 }}>
+                {ans.answer}
+              </Typography>
+
+              {/* 작성 일시 */}
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ display: "block", mt: 0.5 }}
+              >
                 작성일: {new Date(ans.createdAt).toLocaleString()}
               </Typography>
             </Box>
