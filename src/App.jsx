@@ -1,86 +1,84 @@
-// src/App.jsx
-import React, {useEffect, useState} from 'react';
-import {Provider, useDispatch} from 'react-redux';
-import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
-import store from './store';
-import axios from './api/axios'; // Axios 기본 설정 파일
-import {setAccessToken, setId, setNickname} from './slices/authSlice'; // 액세스 토큰 설정 액션
-import AlertNotification from './components/AlertNotification.jsx';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Navbar from "./components/Navbar.jsx";
-import MyInfo from "./pages/MyInfo.jsx";
-import QnA from "./pages/QnA.jsx";
+import React, { useEffect, useState } from 'react';
+import { Provider, useDispatch }        from 'react-redux';
+import { BrowserRouter as Router,
+  Routes,
+  Route }                       from 'react-router-dom';
+import { Container }                    from '@mui/material';
+
+import store                           from './store';
+import axios                           from './api/axios';
+import { setAccessToken,
+  setId,
+  setNickname }                 from './slices/authSlice';
+import AlertNotification               from './components/AlertNotification';
+import Navbar                          from './components/Navbar';
+import Home                            from './pages/Home';
+import Login                           from './pages/Login';
+import MyInfo                          from './pages/MyInfo';
+import QnALayout                       from './pages/QnALayout';
+import QnADetail                       from './pages/QnADetail';
+import QnA                             from './pages/QnA';
 
 const AppContent = () => {
   const dispatch = useDispatch();
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [inited, setInited] = useState(false);
 
-  // 쿠키 파싱 함수
   const getCookie = (name) => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
+    const v = `; ${document.cookie}`;
+    const parts = v.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
     return null;
   };
 
   useEffect(() => {
-    const fetchAccessToken = async () => {
+    (async () => {
       try {
-        const refreshToken = getCookie('refreshToken');
-        if (refreshToken === null) return;
+        const rt = getCookie('refreshToken');
+        if (!rt) return;
+        const res = await axios.post('/v1/auth/reissue', { refreshToken: rt });
+        if (res.data.accessToken) {
+          dispatch(setAccessToken(res.data.accessToken));
+          document.cookie = `refreshToken=${res.data.refreshToken}; path=/; max-age=${7*24*60*60}; samesite=strict`;
 
-        const response = await axios.post('/v1/auth/reissue', {refreshToken: refreshToken});
-        if (response.data && response.data.accessToken) {
-
-          dispatch(setAccessToken(response.data.accessToken)); // Redux에 저장
-
-          // todo 서버에서 쿠키로 설정하도록 협의
-          //  reissue api도 토큰을 읽어서 처리하도록 협의
-          // 7일간 유지
-          document.cookie = `refreshToken=${response.data.refreshToken}; path=/; max-age=${7 * 24 * 60 * 60}; samesite=strict`;
-
-          const userInfo = await axios.get("/v1/members/me");
-          const user = userInfo.data; // 받아온 사용자 정보
-          // 사용자 정보를 Redux에 저장
-          dispatch(setId(user.id));
-          dispatch(setNickname(user.nickname));
+          const me = await axios.get('/v1/members/me');
+          dispatch(setId(me.data.id));
+          dispatch(setNickname(me.data.nickname));
         }
-      } catch (error) {
-        console.info('Browser refresh and failed to reissue access token:', error.response.data.message);
+      } catch (e) {
+        console.info('토큰 재발급 실패', e.response?.data?.message);
       } finally {
-        setIsInitialized(true); // 초기화 완료
+        setInited(true);
       }
-    };
-
-    fetchAccessToken();
+    })();
   }, [dispatch]);
 
-  // 최상위 컴포넌트의 useEffect()가 실행을 마칠 때까지 대기
-  if (!isInitialized) {
-    return <div>Initializing...</div>; // 초기화 중 로딩 표시
-  }
+  if (!inited) return <div>Initializing...</div>;
 
   return (
-    <>
-      <Router>
-        <Navbar/>
+    <Router>
+      <Navbar/>
+      <Container maxWidth="sm">
         <Routes>
-          <Route path="/" element={<Home/>}/>
-          <Route path="/login" element={<Login/>}/>
-          <Route path="/myinfo" element={<MyInfo/>}/>
-          <Route path="/qna" element={<QnA/>}/>
+          <Route path="/"      element={<Home/>} />
+          <Route path="/login" element={<Login/>} />
+          <Route path="/myinfo" element={<MyInfo/>} />
+
+          {/* QnA 중첩 라우트 */}
+          <Route path="/qna" element={<QnALayout/>}>
+            {/* index 경로는 따로 선언할 필요 없이 QnALayout 내부의 QnA를 보여줍니다 */}
+            <Route path=":questionId" element={<QnADetail/>} />
+          </Route>
         </Routes>
-      </Router>
-    </>
+      </Container>
+    </Router>
   );
 };
 
-const App = () => (
-  <Provider store={store}>
-    <AlertNotification/>
-    <AppContent/>
-  </Provider>
-);
-
-export default App;
+export default function App() {
+  return (
+    <Provider store={store}>
+      <AlertNotification/>
+      <AppContent/>
+    </Provider>
+  );
+}

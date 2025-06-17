@@ -87,7 +87,7 @@ const Navbar = () => {
   );
 
   return (
-    <Box sx={{flexGrow: 1}}>
+    <Box sx={{flexGrow: 1}} mb={2}>
       <AppBar position="static" sx={{boxShadow: 'none'}}>
         <Toolbar>
           <img

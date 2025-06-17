@@ -36,10 +36,10 @@ const theme = createTheme({
 });
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <App />
-    </ThemeProvider>
-  </StrictMode>,
+  // <StrictMode>
+  <ThemeProvider theme={theme}>
+    <CssBaseline/>
+    <App/>
+  </ThemeProvider>
+  // </StrictMode>,
 );
