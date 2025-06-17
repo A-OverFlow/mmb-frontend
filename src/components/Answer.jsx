@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, IconButton, TextField, Typography, Paper } from '@mui/material';
+import { Box, Button, IconButton, TextField, Typography, Paper, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from '../api/axios';
@@ -13,6 +13,8 @@ const Answer = ({ questionId, questionAuthorId }) => {
   const [newAnswer, setNewAnswer] = useState('');
   const [editingAnswerId, setEditingAnswerId] = useState(null);
   const [editingContent, setEditingContent] = useState('');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
 
   const fetchAnswers = async () => {
     try {
@@ -78,7 +80,7 @@ const Answer = ({ questionId, questionAuthorId }) => {
           <Paper
             key={ans.answerId}
             variant="outlined"
-            sx={{ mb: 2, p: 2, backgroundColor: '#fff' }}  // 배경을 흰색으로 변경
+            sx={{ mb: 2, p: 2, backgroundColor: '#fff' }}
           >
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography
@@ -98,7 +100,13 @@ const Answer = ({ questionId, questionAuthorId }) => {
                   <IconButton size="small" onClick={() => handleStartEdit(ans)}>
                     <EditIcon fontSize="small" />
                   </IconButton>
-                  <IconButton size="small" onClick={() => handleDelete(ans.answerId)}>
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setDeleteTargetId(ans.answerId);
+                      setDeleteDialogOpen(true);
+                    }}
+                  >
                     <DeleteIcon fontSize="small" />
                   </IconButton>
                 </Box>
@@ -163,6 +171,26 @@ const Answer = ({ questionId, questionAuthorId }) => {
           지금 로그인하고 답변을 작성해 보세요.
         </Typography>
       )}
+
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>답변 삭제 확인</DialogTitle>
+        <DialogContent>
+          <Typography>정말 이 답변을 삭제하시겠어요?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>취소</Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              handleDelete(deleteTargetId);
+              setDeleteDialogOpen(false);
+            }}
+          >
+            삭제
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

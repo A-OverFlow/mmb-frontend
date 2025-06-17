@@ -5,6 +5,10 @@ import {
   Button,
   Card,
   CardContent,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   IconButton,
   Menu,
   MenuItem,
@@ -19,13 +23,13 @@ import axios from '../api/axios';
 import UserInfo from './UserInfo';
 
 const Question = ({
-                    posts,
-                    fetchMorePosts,
-                    hasMore,
-                    onEditPost,
-                    onDeletePost,
-                    hideCommentButton = false,
-                  }) => {
+  posts,
+  fetchMorePosts,
+  hasMore,
+  onEditPost,
+  onDeletePost,
+  hideCommentButton = false,
+}) => {
   const navigate = useNavigate();
   const userId = useSelector(state => state.auth.id);
 
@@ -35,6 +39,8 @@ const Question = ({
   const [showMoreButton, setShowMoreButton] = useState({});
   const [answerCounts, setAnswerCounts] = useState({});
   const [lastAnswers, setLastAnswers] = useState({});
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTargetPost, setDeleteTargetPost] = useState(null);
 
   // 본문 토글
   const toggleExpand = postId => {
@@ -88,17 +94,19 @@ const Question = ({
   };
 
   useEffect(() => {
-    // “더보기” 버튼 여부 체크
-    posts.forEach(post => {
-      const el = document.getElementById(`post-content-${post.id}`);
-      if (el && el.scrollHeight > el.clientHeight) {
-        setShowMoreButton(prev => ({ ...prev, [post.id]: true }));
-      }
-    });
+    // “더보기” 버튼 여부 체크 (QnADetail에서 hideCommentButton일 때는 토글 비활성)
+    if (!hideCommentButton) {
+      posts.forEach(post => {
+        const el = document.getElementById(`post-content-${post.id}`);
+        if (el && el.scrollHeight > el.clientHeight) {
+          setShowMoreButton(prev => ({ ...prev, [post.id]: true }));
+        }
+      });
+    }
     if (posts.length) {
       fetchAnswerData(posts);
     }
-  }, [posts]);
+  }, [posts, hideCommentButton]);
 
   return (
     <>
@@ -117,7 +125,10 @@ const Question = ({
             <Box
               id={`post-content-${post.id}`}
               sx={{
-                maxHeight: expandedPosts.includes(post.id) ? 'none' : 150,
+                maxHeight:
+                  hideCommentButton || expandedPosts.includes(post.id)
+                    ? 'none'
+                    : 150,
                 overflow: 'hidden',
                 whiteSpace: 'pre-wrap'
               }}
@@ -127,7 +138,7 @@ const Question = ({
               </Typography>
             </Box>
 
-            {showMoreButton[post.id] && !expandedPosts.includes(post.id) && (
+            {!hideCommentButton && showMoreButton[post.id] && !expandedPosts.includes(post.id) && (
               <Box sx={{ textAlign: 'right', mb: 1 }}>
                 <Button
                   size="small"
@@ -138,7 +149,7 @@ const Question = ({
                 </Button>
               </Box>
             )}
-            {expandedPosts.includes(post.id) && (
+            {!hideCommentButton && expandedPosts.includes(post.id) && (
               <Box sx={{ textAlign: 'right', mt: 1 }}>
                 <Button
                   size="small"
@@ -157,30 +168,44 @@ const Question = ({
               </Typography>
             </Box>
 
-            {/* 최근 답변 + 댓글 버튼 영역 (댓글 숨김 시, 전체 영역 숨김) */}
+            {/* 최근 답변 + 댓글 버튼 영역 */}
             {!hideCommentButton && (
               <Box
+                mt={2}
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: 'space-between',
                   p: 1,
                 }}
               >
-                <SubdirectoryArrowRightIcon fontSize="small" sx={{ mr: 0.5 }} />
-
-                <Typography
-                  variant="body2"
-                  noWrap
+                <Box
                   sx={{
                     flex: 1,
-                    minWidth: 0,
+                    display: 'flex',
+                    alignItems: 'center',
                     overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap'
                   }}
                 >
-                  {lastAnswers[post.id] || '아직 답변이 없습니다.'}
-                </Typography>
+                  {lastAnswers[post.id]?.trim() && (
+                    <>
+                      <SubdirectoryArrowRightIcon color="primary" fontSize="small" sx={{ mr: 0.5 }} />
+                      <Typography
+                        variant="body2"
+                        color="primary"
+                        noWrap
+                        sx={{
+                          minWidth: 0,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {lastAnswers[post.id]}
+                      </Typography>
+                    </>
+                  )}
+                </Box>
 
                 <IconButton size="small" onClick={() => handleAnswerClick(post)}>
                   <Badge
@@ -211,26 +236,45 @@ const Question = ({
                 >
                   <MenuItem
                     onClick={() => {
-                      onEditPost(selectedPost.id);
                       handleMenuClose();
+                      onEditPost(selectedPost.id);
                     }}
-                  >
-                    수정
-                  </MenuItem>
+                  >수정</MenuItem>
                   <MenuItem
                     onClick={() => {
-                      onDeletePost(selectedPost.id);
                       handleMenuClose();
+                      setDeleteTargetPost(post);
+                      setDeleteDialogOpen(true);
                     }}
-                  >
-                    삭제
-                  </MenuItem>
+                  >삭제</MenuItem>
                 </Menu>
               </>
             )}
           </CardContent>
         </Card>
       ))}
+
+      {/* 삭제 확인 Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle>질문 삭제 확인</DialogTitle>
+        <DialogContent>
+          <Typography>정말 이 질문을 삭제하시겠어요?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>취소</Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              onDeletePost(deleteTargetPost?.id);
+              setDeleteDialogOpen(false);
+            }}
+          >삭제</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

@@ -1,23 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { Provider, useDispatch }        from 'react-redux';
-import { BrowserRouter as Router,
+import React, {useEffect, useState} from 'react';
+import {Provider, useDispatch} from 'react-redux';
+import {
+  BrowserRouter as Router,
   Routes,
-  Route }                       from 'react-router-dom';
-import { Container }                    from '@mui/material';
+  Route
+} from 'react-router-dom';
+import {Container} from '@mui/material';
 
-import store                           from './store';
-import axios                           from './api/axios';
-import { setAccessToken,
+import store from './store';
+import axios from './api/axios';
+import {
+  setAccessToken,
   setId,
-  setNickname }                 from './slices/authSlice';
-import AlertNotification               from './components/AlertNotification';
-import Navbar                          from './components/Navbar';
-import Home                            from './pages/Home';
-import Login                           from './pages/Login';
-import MyInfo                          from './pages/MyInfo';
-import QnALayout                       from './pages/QnALayout';
-import QnADetail                       from './pages/QnADetail';
-import QnA                             from './pages/QnA';
+  setNickname
+} from './slices/authSlice';
+import AlertNotification from './components/AlertNotification';
+import Navbar from './components/Navbar';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import MyInfo from './pages/MyInfo';
+import QnALayout from './pages/QnALayout';
+import QnADetail from './pages/QnADetail';
+import QnA from './pages/QnA';
 
 const AppContent = () => {
   const dispatch = useDispatch();
@@ -35,10 +39,10 @@ const AppContent = () => {
       try {
         const rt = getCookie('refreshToken');
         if (!rt) return;
-        const res = await axios.post('/v1/auth/reissue', { refreshToken: rt });
+        const res = await axios.post('/v1/auth/reissue', {refreshToken: rt});
         if (res.data.accessToken) {
           dispatch(setAccessToken(res.data.accessToken));
-          document.cookie = `refreshToken=${res.data.refreshToken}; path=/; max-age=${7*24*60*60}; samesite=strict`;
+          document.cookie = `refreshToken=${res.data.refreshToken}; path=/; max-age=${7 * 24 * 60 * 60}; samesite=strict`;
 
           const me = await axios.get('/v1/members/me');
           dispatch(setId(me.data.id));
@@ -57,16 +61,21 @@ const AppContent = () => {
   return (
     <Router>
       <Navbar/>
-      <Container maxWidth="sm">
+      <Container
+        maxWidth="sm"
+        disableGutters
+        sx={{
+          px: {xs: 0, sm: 2}, // xs (모바일)는 padding 0, sm 이상에서는 기본 padding
+        }}>
         <Routes>
-          <Route path="/"      element={<Home/>} />
-          <Route path="/login" element={<Login/>} />
-          <Route path="/myinfo" element={<MyInfo/>} />
+          <Route path="/" element={<Home/>}/>
+          <Route path="/login" element={<Login/>}/>
+          <Route path="/myinfo" element={<MyInfo/>}/>
 
           {/* QnA 중첩 라우트 */}
           <Route path="/qna" element={<QnALayout/>}>
             {/* index 경로는 따로 선언할 필요 없이 QnALayout 내부의 QnA를 보여줍니다 */}
-            <Route path=":questionId" element={<QnADetail/>} />
+            <Route path=":questionId" element={<QnADetail/>}/>
           </Route>
         </Routes>
       </Container>
