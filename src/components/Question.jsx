@@ -24,8 +24,6 @@ import UserInfo from './UserInfo';
 
 const Question = ({
   posts,
-  fetchMorePosts,
-  hasMore,
   onEditPost,
   onDeletePost,
   hideCommentButton = false,
