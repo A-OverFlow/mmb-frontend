@@ -21,7 +21,7 @@ import Login from './pages/Login';
 import MyInfo from './pages/MyInfo';
 import QnALayout from './pages/QnALayout';
 import QnADetail from './pages/QnADetail';
-import QnA from './pages/QnA';
+import Chat from './pages/Chat';
 
 const AppContent = () => {
   const dispatch = useDispatch();
@@ -71,7 +71,7 @@ const AppContent = () => {
           <Route path="/" element={<Home/>}/>
           <Route path="/login" element={<Login/>}/>
           <Route path="/myinfo" element={<MyInfo/>}/>
-
+          <Route path="/chat" element={<Chat />} />
           {/* QnA 중첩 라우트 */}
           <Route path="/qna" element={<QnALayout/>}>
             {/* index 경로는 따로 선언할 필요 없이 QnALayout 내부의 QnA를 보여줍니다 */}

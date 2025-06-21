@@ -56,6 +56,10 @@ const Navbar = () => {
     navigate('/qna');
   };
 
+  const handleGoChat = () => {
+    navigate('/chat');
+  };
+
   const list = () => (
     <Box sx={{width: 250}} role="presentation" onClick={() => toggleDrawer(false)}>
       <List>
@@ -96,19 +100,11 @@ const Navbar = () => {
             style={{
               height: 36,
               width: 36,
-              marginRight: 8,
+              marginRight: 18,
               cursor: 'pointer'
             }}
             onClick={handleGoHome}
           />
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{cursor: 'pointer', marginRight: 2}}
-            onClick={handleGoHome}
-          >
-            무물보
-          </Typography>
 
           <Typography
             variant="subtitle1"
@@ -116,7 +112,17 @@ const Navbar = () => {
             sx={{cursor: 'pointer', marginRight: 2}}
             onClick={handleGoBoard}
           >
-            QnA
+            무물보
+          </Typography>
+
+          {/* 채팅 메뉴 */}
+          <Typography
+            variant="subtitle1"
+            component="div"
+            sx={{cursor: 'pointer', marginRight: 2}}
+            onClick={handleGoChat}
+          >
+            채팅
           </Typography>
 
           <Typography variant="h6" component="div" sx={{flexGrow: 1}}></Typography>
