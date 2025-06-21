@@ -109,14 +109,14 @@ function Chat() {
   return (
     <Box sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
       {/* ✅ 제목 + 접속자 수 표시 */}
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" m={1} mb={3}>
         <Typography variant="h5">실시간 채팅</Typography>
         <Typography variant="body2" color="textSecondary">
           접속자 수: {connectedUsers.length}
         </Typography>
       </Box>
 
-      <Paper elevation={3} sx={{ height: 500, overflowY: "auto", p: 2, mb: 2 }}>
+      <Paper elevation={0} sx={{ height: 500, overflowY: "auto", p: 2, mb: 2 }}>
         <List>
           {messages.map((msg, idx) => {
             const sender = msg.senderName || msg.senderEmail || "익명";
@@ -140,7 +140,7 @@ function Chat() {
         </List>
       </Paper>
 
-      <Box sx={{ display: "flex", gap: 1 }}>
+      <Box m={1} mb={5} sx={{ display: "flex", gap: 1 }}>
         <TextField
           fullWidth
           placeholder={token ? "메시지를 입력하세요" : "로그인 후 채팅이 가능합니다"}
