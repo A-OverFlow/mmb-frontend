@@ -7,6 +7,7 @@ import { Box, CircularProgress, Typography, Alert } from "@mui/material";
 // Odometer (Rolling Numbers) 효과를 위한 라이브러리
 import Odometer from 'react-odometerjs';
 import 'odometer/themes/odometer-theme-default.css';
+import UserInfo from "../components/UserInfo.jsx";
 
 const Home = () => {
   // 사용자 닉네임(환영 문구)
@@ -165,9 +166,7 @@ const Home = () => {
               onClick={() => navigate(`/qna/${ans.questionId}`)}
             >
               {/* 작성자 및 유저ID */}
-              <Typography variant="subtitle2" color="primary.main">
-                {ans.author || "알 수 없음"}#{ans.userId}
-              </Typography>
+              <UserInfo user={ans.author} compact />
 
               {/* 답변 내용 */}
               <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", mt: 1 }}>

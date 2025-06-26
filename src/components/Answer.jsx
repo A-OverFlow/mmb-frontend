@@ -4,6 +4,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from '../api/axios';
 import { useSelector } from 'react-redux';
+import UserInfo from "./UserInfo.jsx";
 
 const Answer = ({ questionId, questionAuthorId }) => {
   const accessToken = useSelector(state => state.auth.accessToken);
@@ -83,17 +84,7 @@ const Answer = ({ questionId, questionAuthorId }) => {
             sx={{ mb: 2, p: 2, backgroundColor: '#fff' }}
           >
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography
-                variant="subtitle2"
-                color="primary.main"
-                sx={ans.userId === questionAuthorId ? { fontWeight: 'bold' } : {}}
-              >
-                {ans.userId === questionAuthorId && '<작성자> '}
-                {ans.author || '알 수 없음'}
-                <Typography component="span" variant="subtitle2">
-                  #{ans.userId}
-                </Typography>
-              </Typography>
+              <UserInfo user={ans.author} compact/>
 
               {ans.userId === userId && (
                 <Box>
